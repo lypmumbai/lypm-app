@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Love Your Parks Mumbai</title>
+<meta name="description" content="Discover Mumbai's parks, join walks and events, and learn about the nature around you.">
+<meta name="theme-color" content="#2FA866">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LYP Mumbai">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E4634; --leaf:#2FA866; --leaf-soft:#E3F6EA; --gul:#FF7A52; --gul-soft:#FFEADF; --sun:#FFC93C; --sun-soft:#FFF5D3;
+  --sea:#2D9CC8; --sea-soft:#E0F3FA; --lilac:#8C7AEE; --lilac-soft:#EFEBFE; --bg:#F6FBF5; --bgtop:#E4F5EC; --card:#FFFFFF; --line:#E0ECE3;
+  --muted:#5E796A; --land:#EAF6E2; --water:#D7EFF8;
+  --shadow:0 1px 0 rgba(30,70,52,.05), 0 8px 22px rgba(47,168,102,.10);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#E4F3E8; --leaf:#5CC38A; --leaf-soft:#1D3A2A; --gul:#FF8A62; --gul-soft:#3D241B; --sun:#FFCF5C; --sun-soft:#3A3117;
+    --sea:#5BB8D6; --sea-soft:#15323C; --lilac:#A99BFF; --lilac-soft:#2A2645; --bg:#10211A; --bgtop:#163126; --card:#18301F; --line:#284235; --muted:#9BB5A5; --land:#1C3326; --water:#14303A;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+    --ink:#E4F3E8; --leaf:#5CC38A; --leaf-soft:#1D3A2A; --gul:#FF8A62; --gul-soft:#3D241B; --sun:#FFCF5C; --sun-soft:#3A3117;
+    --sea:#5BB8D6; --sea-soft:#15323C; --lilac:#A99BFF; --lilac-soft:#2A2645; --bg:#10211A; --bgtop:#163126; --card:#18301F; --line:#284235; --muted:#9BB5A5; --land:#1C3326; --water:#14303A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:linear-gradient(180deg,var(--bgtop) 0,var(--bg) 360px) no-repeat,var(--bg);color:var(--ink);font-family:'Mukta',system-ui,'Noto Sans Devanagari',sans-serif;font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body.big{font-size:19px}
+h1,h2,h3,.disp{font-family:'Baloo 2','Mukta',system-ui,sans-serif;line-height:1.15;margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:8px}
+img,svg{max-width:100%}
+.app{max-width:560px;margin:0 auto;min-height:100%;padding-bottom:96px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bgtop) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px;padding:10px 16px}
+.logo{width:40px;height:40px;flex:none}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-family:'Baloo 2';font-size:1.15em;font-weight:800;line-height:1}
+.brand span{font-size:.85em;color:var(--muted)}
+.iconbtn{width:44px;height:44px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:20px}
+
+/* views */
+.view{display:none;padding:4px 16px 16px}
+.view.on{display:block}
+.hello{padding:8px 0 4px}
+.hello h1{font-size:2.1em;font-weight:800;letter-spacing:-.01em}
+.hello p{margin:4px 0 0;color:var(--muted)}
+.sec{margin:26px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sec h2{font-size:1.35em;font-weight:700}
+.link{background:none;border:0;color:var(--leaf);font-weight:600;padding:6px 0}
+
+/* mood chips */
+.moods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.mood{border:0;border-radius:22px;padding:12px 6px 10px;background:var(--tile,var(--card));transition:transform .15s ease;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;font-size:.92em}
+.mood .e{font-size:28px;line-height:1.1}
+.mood[aria-pressed="true"]{background:var(--leaf);color:#fff}
+
+/* cards */
+.card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:16px}
+.potd{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;border:0;text-align:left;width:100%;cursor:pointer}
+.blob{border-radius:24px;display:grid;place-items:center;font-size:46px;aspect-ratio:1}
+.potd h3{font-size:1.3em}
+.potd p{margin:4px 0 0;color:var(--muted);font-size:.95em}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-size:.78em;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--leaf-soft);color:var(--ink)}
+.tag.warn{background:var(--sun-soft)}
+.tag.sea{background:var(--sea-soft)}
+.list{display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:18px;padding:10px 12px;box-shadow:var(--shadow);border:0;width:100%;text-align:left}
+.prow .blob{width:54px;font-size:28px;border-radius:16px;flex:none}
+.prow .t{flex:1;min-width:0}
+.prow b{display:block;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.prow small{color:var(--muted)}
+.dist{font-family:'Baloo 2';font-weight:700;color:var(--leaf);white-space:nowrap}
+
+/* fact */
+.fact{background:var(--sun-soft);border-radius:20px;padding:16px;display:flex;gap:12px;align-items:flex-start}
+.fact .e{font-size:30px}
+.fact p{margin:0}
+.fact small{display:block;color:var(--muted);margin-top:6px}
+
+/* events */
+.ev{display:grid;grid-template-columns:58px 1fr;gap:12px;background:var(--card);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+.date{border-radius:14px;background:var(--gul-soft);text-align:center;padding:6px 0;font-family:'Baloo 2';line-height:1}
+.date b{display:block;font-size:1.6em;color:var(--gul)}
+.date span{font-size:.75em;font-weight:700}
+.ev h3{font-size:1.08em;font-weight:700}
+.ev p{margin:2px 0 0;color:var(--muted);font-size:.92em}
+.ev .act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:14px;padding:10px 16px;font-weight:700;background:var(--leaf);color:#fff;min-height:44px}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.gul{background:var(--gul)}
+.btn.done{background:var(--leaf-soft);color:var(--ink)}
+.sample{font-size:.72em;font-weight:700;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:0 8px;margin-left:6px;white-space:nowrap}
+
+/* segmented */
+.seg{display:flex;background:var(--card);border-radius:16px;padding:4px;box-shadow:var(--shadow);margin:10px 0 14px}
+.seg button{flex:1;border:0;background:transparent;border-radius:12px;padding:10px;font-weight:700}
+.seg button[aria-selected="true"]{background:var(--leaf);color:#fff}
+
+/* map */
+.mapwrap{background:var(--water);border-radius:24px;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+#map{display:block;width:100%;height:420px;touch-action:manipulation}
+.regions{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
+.chip{flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-weight:600;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.pick{margin-top:12px}
+.near{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:.95em;flex-wrap:wrap}
+.near select{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:8px 10px;min-height:44px}
+
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:40;display:none}
+.sheet.on{display:block}
+.scrim{position:absolute;inset:0;background:rgba(10,30,20,.45)}
+.panel{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;max-height:92%;overflow-y:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.panel{animation:none}}
+.hero{position:relative;padding:18px 18px 22px;border-radius:28px 28px 0 0}
+.hero .close{position:absolute;top:14px;left:14px}
+.hero .big{font-size:76px;text-align:center;line-height:1.2;padding-top:24px}
+.hero h2{font-size:1.75em;font-weight:800;overflow-wrap:anywhere;margin-top:6px}
+.hero .sub{color:var(--muted)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 18px}
+.facts div{background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow)}
+.facts small{display:block;color:var(--muted);font-size:.8em}
+.facts b{font-weight:600;font-size:.95em}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px 18px 0}
+.actions button,.actions a{border:0;background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;font-size:.82em;text-decoration:none;color:var(--ink);min-height:64px;justify-content:center}
+.actions .e{font-size:22px}
+.actions .on{background:var(--leaf);color:#fff}
+.block{padding:0 18px}
+.block h3{font-size:1.15em;font-weight:700;margin:22px 0 8px}
+.block p{margin:0 0 8px}
+.spot{display:flex;flex-wrap:wrap;gap:8px}
+.sp{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-weight:600;min-height:40px}
+.sp[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:#3a2a00}
+.note{font-size:.85em;color:var(--muted);background:var(--card);border-radius:14px;padding:10px 12px;border:1px dashed var(--line)}
+
+/* help form */
+.help{background:var(--card);border-radius:20px;padding:14px;box-shadow:var(--shadow)}
+.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.kinds button{border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:8px 4px;font-weight:600;font-size:.88em;display:flex;flex-direction:column;align-items:center}
+.kinds button .e{font-size:22px}
+.kinds button[aria-pressed="true"]{border-color:var(--leaf);background:var(--leaf-soft)}
+label.f{display:block;font-weight:600;margin:10px 0 4px}
+textarea{width:100%;border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:10px;min-height:76px;resize:vertical}
+
+/* learn */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.species{background:var(--card);border-radius:18px;padding:12px;box-shadow:var(--shadow);border:2px solid transparent;text-align:left;width:100%}
+.species .e{font-size:34px}
+.species b{display:block;font-family:'Baloo 2';font-size:1.05em;line-height:1.15}
+.species i{font-style:normal;color:var(--muted);font-size:.85em;display:block}
+.species p{margin:6px 0 0;font-size:.85em}
+.species[aria-pressed="true"]{border-color:var(--sun);background:var(--sun-soft)}
+.quest{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+.quest .e{font-size:30px;width:48px;text-align:center}
+.bar{height:10px;background:var(--leaf-soft);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--leaf);border-radius:99px}
+.teach{background:var(--sea-soft);border-radius:20px;padding:16px}
+.teach ul{margin:8px 0 0;padding-left:20px}
+.teach li{margin:4px 0}
+
+/* passport */
+.pass{background:var(--card);border-radius:24px;padding:16px;box-shadow:var(--shadow)}
+.stamps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.stamp{aspect-ratio:1;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center;font-size:26px;filter:grayscale(1);opacity:.45;background:transparent;padding:0}
+.stamp.got{filter:none;opacity:1;border:3px solid var(--gul);background:var(--gul-soft);transform:rotate(-8deg)}
+.badges{display:flex;gap:10px;flex-wrap:wrap}
+.badge{background:var(--card);border-radius:18px;padding:10px 12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;font-weight:600;opacity:.45}
+.badge.got{opacity:1;background:var(--sun-soft)}
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.set:last-child{border-bottom:0}
+.set small{display:block;color:var(--muted)}
+.sw{width:56px;height:32px;border-radius:99px;border:0;background:var(--line);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-checked="true"]{background:var(--leaf)}
+.sw[aria-checked="true"]::after{left:28px}
+.about{font-size:.9em;color:var(--muted)}
+.about a{color:var(--leaf)}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.nav button{border:0;background:none;padding:8px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:0;font-size:.78em;font-weight:600;color:var(--muted);min-height:58px}
+.nav .e{font-size:22px;line-height:1.3;filter:grayscale(.6);opacity:.8}
+.nav button[aria-current="page"]{color:var(--ink)}
+.nav button[aria-current="page"] .e{filter:none;opacity:1;transform:translateY(-1px)}
+.nav button[aria-current="page"] span:last-child{background:var(--leaf-soft);border-radius:99px;padding:0 10px}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-weight:600;z-index:60;max-width:90%;text-align:center;display:none}
+.toast.on{display:block}
+.empty{text-align:center;color:var(--muted);padding:22px;background:var(--card);border-radius:18px}
+
+
+/* ---- happy layer: banner, motion, confetti ---- */
+.banner{position:relative;border-radius:28px;overflow:hidden;background:linear-gradient(180deg,#BFE9FA 0%,#E6F7FD 60%,#E9F8E6 100%);margin:6px 0 4px;min-height:150px}
+:root[data-theme="dark"] .banner{background:linear-gradient(180deg,#1E3A4D,#1A3328)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .banner{background:linear-gradient(180deg,#1E3A4D,#1A3328)}}
+.banner svg{position:absolute;inset:0;width:100%;height:100%}
+.banner .txt{position:relative;padding:18px 18px 64px}
+.banner h1{font-size:1.8em;padding-right:70px;font-weight:800;color:#17402D}
+.banner p{margin:2px 0 0;color:#2E5A44;font-weight:600}
+:root[data-theme="dark"] .banner h1,:root[data-theme="dark"] .banner p{color:var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .banner h1,:root:not([data-theme="light"]) .banner p{color:var(--ink)}}
+.cloud{animation:drift 38s linear infinite}
+.cloud.c2{animation-duration:55s;animation-delay:-20s}
+@keyframes drift{from{transform:translateX(-140px)}to{transform:translateX(560px)}}
+.sunray{transform-box:fill-box;transform-origin:center;animation:spin 30s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 3.6s ease-in-out infinite alternate}
+.sway.s2{animation-duration:4.4s;animation-delay:-1s}.sway.s3{animation-duration:3.1s;animation-delay:-2s}
+@keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
+.bird{animation:fly 16s linear infinite}
+@keyframes fly{0%{transform:translate(-40px,20px)}50%{transform:translate(220px,0)}100%{transform:translate(520px,14px)}}
+.view.on>*{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+.view.on>*:nth-child(2){animation-delay:.04s}.view.on>*:nth-child(3){animation-delay:.08s}.view.on>*:nth-child(4){animation-delay:.12s}
+.view.on>*:nth-child(5){animation-delay:.16s}.view.on>*:nth-child(6){animation-delay:.2s}.view.on>*:nth-child(n+7){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+button,.prow,.actions a{transition:transform .14s ease,background-color .2s ease,box-shadow .2s ease}
+button:active,.prow:active,.actions a:active{transform:scale(.95)}
+.prow:hover,.potd:hover{box-shadow:0 10px 26px rgba(47,168,102,.16)}
+.mood[aria-pressed="true"]{background:var(--leaf)!important;color:#fff}
+.mood[aria-pressed="true"] .e,.mood:active .e{animation:wiggle .5s ease}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg) scale(1.15)}75%{transform:rotate(12deg) scale(1.1)}}
+.fact .e{animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.pin>circle:last-child{transform-box:fill-box;transform-origin:center;animation:pop .45s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.stamp.got{animation:thunk .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes thunk{0%{transform:scale(1.7) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(-8deg);opacity:1}}
+.hero .big{animation:float 3.2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+.nav button[aria-current="page"] .e{animation:hop .4s ease}
+@keyframes hop{0%{transform:translateY(0)}40%{transform:translateY(-6px)}100%{transform:translateY(-1px)}}
+.toast{border-radius:999px;white-space:nowrap;background:var(--leaf);color:#fff;box-shadow:0 10px 24px rgba(47,168,102,.35)}
+.toast.on{animation:toastin .35s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes toastin{from{transform:translate(-50%,20px) scale(.9);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.confetti{position:fixed;z-index:70;pointer-events:none;font-size:18px;left:0;top:0;animation:burst .9s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes burst{0%{transform:translate(var(--x0),var(--y0)) scale(.4);opacity:1}100%{transform:translate(var(--x1),var(--y1)) rotate(var(--r)) scale(1);opacity:0}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* kids mode */
+body.kids .grown{display:none !important}
+body.kids{font-size:18px}
+.kidsonly{display:none}
+body.kids .kidsonly{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="12" fill="var(--leaf)"/><path d="M20 31c-6-4.2-10-7.6-10-12.2C10 15.6 12.4 13 15.3 13c2 0 3.6 1.1 4.7 2.7C21.1 14.1 22.7 13 24.7 13c2.9 0 5.3 2.6 5.3 5.8C30 23.4 26 26.8 20 31z" fill="var(--sun)"/><path d="M20 30V17.5M20 22l-3.5-3M20 25l3.6-3.2" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>
+    <div class="brand"><b>Love Your Parks</b><span>Mumbai</span></div>
+    <button class="iconbtn" id="textBtn" aria-label="Bigger text">Aa</button>
+  </header>
+
+  <!-- HOME -->
+  <main id="v-home" class="view on" aria-label="Home">
+    <div class="banner">
+      <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <g class="sunray"><circle cx="336" cy="38" r="20" fill="#FFD447"/><g stroke="#FFD447" stroke-width="4" stroke-linecap="round">
+          <line x1="336" y1="6" x2="336" y2="12"/><line x1="336" y1="64" x2="336" y2="70"/><line x1="304" y1="38" x2="310" y2="38"/><line x1="362" y1="38" x2="368" y2="38"/>
+          <line x1="313" y1="15" x2="317" y2="19"/><line x1="355" y1="57" x2="359" y2="61"/><line x1="313" y1="61" x2="317" y2="57"/><line x1="355" y1="19" x2="359" y2="15"/></g></g>
+        <g class="cloud"><ellipse cx="60" cy="40" rx="26" ry="11" fill="#fff" opacity=".9"/><ellipse cx="80" cy="34" rx="18" ry="12" fill="#fff" opacity=".9"/></g>
+        <g class="cloud c2"><ellipse cx="40" cy="70" rx="20" ry="8" fill="#fff" opacity=".75"/><ellipse cx="55" cy="65" rx="14" ry="9" fill="#fff" opacity=".75"/></g>
+        <path class="bird" d="M0 30 q5 -5 10 0 q5 -5 10 0" stroke="#3B5A4A" stroke-width="1.6" fill="none"/>
+        <path d="M0 122 Q90 92 190 116 T400 108 V150 H0Z" fill="#A9E2A8"/>
+        <path d="M0 136 Q120 112 250 132 T400 128 V150 H0Z" fill="#7FD08A"/>
+        <g class="sway"><rect x="292" y="96" width="5" height="22" rx="2" fill="#8B6B4A"/><circle cx="294" cy="88" r="16" fill="#3DB36E"/><circle cx="284" cy="96" r="10" fill="#4CC27C"/></g>
+        <g class="sway s2"><rect x="342" y="100" width="4" height="18" rx="2" fill="#8B6B4A"/><circle cx="344" cy="94" r="12" fill="#2FA866"/></g>
+        <g class="sway s3"><rect x="250" y="108" width="3" height="14" rx="1.5" fill="#8B6B4A"/><circle cx="251.5" cy="103" r="9" fill="#5ACD86"/><circle cx="254" cy="101" r="2.2" fill="#FF7A52"/><circle cx="248" cy="105" r="2" fill="#FFC93C"/></g>
+      </svg>
+      <div class="txt"><h1 id="greet">Good morning!</h1><p>Where are we going today?</p></div>
+    </div>
+    <div class="moods" id="moods"></div>
+    <div id="moodResults"></div>
+
+    <div class="sec"><h2>Park of the day</h2></div>
+    <div id="potd"></div>
+
+    <div class="sec"><h2>Close to you</h2><button class="link" data-go="map">See the map</button></div>
+    <div class="list" id="nearList"></div>
+
+    <div class="sec"><h2>Coming up</h2><button class="link" data-go="happen">All events</button></div>
+    <div class="list" id="homeEvents"></div>
+
+    <div class="sec"><h2>Did you know?</h2><button class="link" id="nextFact">Another one</button></div>
+    <div class="fact" id="fact"></div>
+  </main>
+
+  <!-- MAP -->
+  <section id="v-map" class="view" aria-label="Map">
+    <div class="hello"><h1>Explore</h1><p>Tap a dot to meet a park.</p></div>
+    <div class="regions" id="regions"></div>
+    <div class="mapwrap"><svg id="map" role="img" aria-label="Map of Mumbai parks"></svg></div>
+    <div class="near"><span>I'm near</span><select id="nearSel" aria-label="Choose your area"></select><button class="btn ghost" id="locBtn">📍 Use my location</button></div>
+    <div class="sec"><h2>Parks</h2><span class="about" id="pcount"></span></div>
+    <div class="filters" id="filters"></div>
+    <div class="list" id="parkList"></div>
+  </section>
+
+  <!-- HAPPENINGS -->
+  <section id="v-happen" class="view" aria-label="Events and groups">
+    <div class="hello"><h1>Happenings</h1><p>Walks, workshops, clean-ups and the people who show up.</p></div>
+    <div class="seg" role="tablist">
+      <button role="tab" aria-selected="true" data-seg="events">Events</button>
+      <button role="tab" aria-selected="false" data-seg="groups" class="grown">Groups</button>
+    </div>
+    <div id="segEvents"><div class="filters" id="evFilters"></div><div class="list" id="eventList"></div></div>
+    <div id="segGroups" hidden><div class="list" id="groupList"></div>
+      <p class="note" style="margin-top:12px">Groups meet in person, in public parks. There is no chat or messaging in the app, and groups for children are always led by a parent or teacher.</p>
+    </div>
+  </section>
+
+  <!-- LEARN -->
+  <section id="v-learn" class="view" aria-label="Learn">
+    <div class="hello"><h1>Learn &amp; play</h1><p>Spot it, tick it, become a park expert.</p></div>
+    <div class="sec"><h2>Quests</h2></div>
+    <div class="list" id="quests"></div>
+    <div class="sec"><h2>Trees to spot</h2></div>
+    <div class="grid2" id="trees"></div>
+    <div class="sec"><h2>Birds &amp; butterflies</h2></div>
+    <div class="grid2" id="birds"></div>
+    <div class="sec"><h2>For teachers</h2></div>
+    <div class="teach">
+      <b class="disp" style="font-size:1.15em">A park is a free classroom</b>
+      <ul>
+        <li><b>Tree census:</b> count and name every tree along one path. Compare two parks.</li>
+        <li><b>Leaf rubbing:</b> paper, crayons, five different leaves. No picking from living trees.</li>
+        <li><b>Map my park:</b> draw the gates, paths, benches and shade. Where would you add a tap or a toilet?</li>
+        <li><b>Bird minute:</b> sit still for one minute and count every bird call you hear.</li>
+      </ul>
+      <p class="about" style="margin:10px 0 0">Class visit tip: check the park's weekly closed day first. Rani Baug shuts on Wednesdays and Sanjay Gandhi National Park on Mondays.</p>
+    </div>
+  </section>
+
+  <!-- ME -->
+  <section id="v-me" class="view" aria-label="My parks">
+    <div class="hello"><h1>My parks</h1><p>Everything here stays on this phone.</p></div>
+    <div class="pass">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="font-size:1.35em">Park Passport</h2><b id="stampCount" class="disp" style="color:var(--gul)"></b></div>
+      <p class="about" style="margin:4px 0 0">Visit a park, open its page and tap "Collect stamp".</p>
+      <div class="stamps" id="stamps"></div>
+    </div>
+    <div class="sec"><h2>Badges</h2></div>
+    <div class="badges" id="badges"></div>
+    <div class="sec"><h2>Saved parks</h2></div>
+    <div class="list" id="savedList"></div>
+    <div class="sec grown"><h2>My notes to LYPM</h2></div>
+    <div class="list grown" id="notesList"></div>
+    <div class="sec"><h2>Settings</h2></div>
+    <div class="card">
+      <div class="set"><div><b>Kids mode</b><small>Bigger and simpler. Hides groups and park reports.</small></div><button class="sw" role="switch" id="kidsSw" aria-checked="false" aria-label="Kids mode"></button></div>
+      <div class="set"><div><b>Bigger text</b><small>Easier reading for everyone.</small></div><button class="sw" role="switch" id="bigSw" aria-checked="false" aria-label="Bigger text"></button></div>
+      <div class="set"><div><b>Language</b><small>हिंदी and मराठी are coming in the full app.</small></div><span class="tag">English</span></div>
+    </div>
+    <div class="sec"><h2>About this prototype</h2></div>
+    <div class="card about">
+      <p style="margin-top:0">Love Your Parks Mumbai, version 8 prototype. Park details were checked against public and BMC sources in October 2026. Timings and fees change, so parks marked "check before you go" still need confirming with the park or BMC.</p>
+      <p>Events and groups marked "sample" are examples only. The Steps Festival dates are real.</p>
+      <p>Official BMC links: <a href="https://mcgm.maps.arcgis.com/apps/webappviewer/index.html?id=e2da11c7f81a47d39326b23212eba490" target="_blank" rel="noopener">BMC map of gardens</a> · <a href="https://marg.mcgm.gov.in/MARG/welcomePage.html" target="_blank" rel="noopener">MyBMC MARG complaints</a> · <a href="https://portal.mcgm.gov.in/irj/portal/anonymous/qlgardenauth" target="_blank" rel="noopener">Garden &amp; Tree Authority</a></p>
+      <p style="margin-bottom:0">Something urgent or unsafe in a park? Call the BMC helpline on <b>1916</b>.</p>
+    </div>
+  </section>
+</div>
+
+<nav class="nav" aria-label="Main">
+  <div>
+    <button data-go="home" aria-current="page"><span class="e">🏡</span><span>Home</span></button>
+    <button data-go="map"><span class="e">🗺️</span><span>Explore</span></button>
+    <button data-go="happen"><span class="e">🎪</span><span>Happenings</span></button>
+    <button data-go="learn"><span class="e">🔍</span><span>Learn</span></button>
+    <button data-go="me"><span class="e">🎒</span><span>My parks</span></button>
+  </div>
+</nav>
+
+<div class="sheet" id="sheet" aria-hidden="true">
+  <div class="scrim" id="scrim"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="panel"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- DATA ---------- */
+// v: true = location and key details checked against public sources (Oct 2026)
+const PARKS = [
+ {id:'shivaji',name:'Shivaji Park',alt:'Chhatrapati Shivaji Maharaj Park',area:'Dadar West',lat:19.0267,lng:72.8380,e:'🏏',c:'leaf',
+  tags:['sport','walk','sea','heritage','lawn'],hours:'Open ground, early morning to late evening',closed:'None',fee:'Free',v:true,links:[['Google Maps page','https://maps.google.com/?cid=601779046745197191']],
+  about:'The island city\'s biggest open ground, about 28 acres, created in 1925. A nursery for Indian cricket, with a walking loop of about 1.2 km, mallakhamb and football. Dadar beach is just across the road.',
+  best:'Early morning or after 5 pm, when the cricket nets are busy',spot:['kite','crow','rain','peepal']},
+ {id:'ranibaug',name:'Rani Baug',alt:'Jijamata Udyaan (Byculla Zoo & Botanical Garden)',area:'Byculla East',lat:18.9781,lng:72.8367,e:'🐧',c:'gul',
+  tags:['zoo','nature','play','heritage','shade'],hours:'About 9:30 am to 5:30 pm (sources vary)',closed:'Wednesdays',fee:'Ticketed (about ₹50 adults, ₹25 children)',v:true,links:[['Official zoo tickets (BMC)','https://themumbaizoo-ticket.mcgm.gov.in/']],
+  about:'Mumbai\'s oldest public garden, begun in 1861, about 50 acres. A botanical garden with hundreds of old trees, the zoo with Humboldt penguins, and the Bhau Daji Lad Museum next door.',
+  best:'Weekday mornings; go early before the midday rush',spot:['banyan','gulmohar','koel','parakeet','bulbul','mormon']},
+ {id:'hanging',name:'Hanging Gardens',alt:'Pherozeshah Mehta Gardens',area:'Malabar Hill',lat:18.9567,lng:72.8049,e:'🦒',c:'leaf',
+  tags:['view','heritage','walk','play'],hours:'About 5 am to 9 pm',closed:'None',fee:'Free',v:true,links:[['Google Maps page','https://maps.google.com/?cid=10711537058319731610']],
+  about:'Terraced gardens laid out in 1881 on top of a water reservoir, famous for animal-shaped hedges and sunset views. The BMC has proposed rebuilding the reservoir underneath; as of 2026 no closure has been decided.',
+  best:'Sunset',spot:['bulbul','sunbird','crow','coconut']},
+ {id:'kamala',name:'Kamala Nehru Park',alt:'',area:'Malabar Hill',lat:18.9577,lng:72.8062,e:'👢',c:'lilac',
+  tags:['play','view','lawn'],hours:'Morning to evening',closed:'None',fee:'Free',v:false,
+  about:'About 4 acres, opposite the Hanging Gardens. Home of the giant Old Woman\'s Shoe that generations of Mumbai children have climbed, with views over Marine Drive. The BMC\'s elevated Nature Trail starts nearby.',
+  best:'Evening, for the Queen\'s Necklace lights',spot:['crow','kite','almond']},
+ {id:'naturetrail',name:'Malabar Hill Nature Trail',alt:'Nisarga Unnat Marg, BMC elevated walkway',area:'Malabar Hill, near Kamala Nehru Park',lat:18.9586,lng:72.8040,e:'🌿',c:'leaf',
+  tags:['nature','view','walk'],hours:'Daily, about 5 am to 9 pm, in one-hour slots',closed:'None',fee:'₹25 (Indian citizens), ₹100 (foreign nationals); book online',v:true,links:[['Book tickets (BMC)','https://naturetrail.mcgm.gov.in/']],
+  about:'Mumbai\'s first elevated nature trail, opened by the BMC on 30 March 2025: a wooden walkway about 485 m long through the Malabar Hill urban forest, with a sea-view deck and birdwatching spots. Up to 200 people per one-hour slot. No food allowed; water bottles are fine.',
+  best:'Early morning, for birds and cool air',spot:['sunbird','tailor','bulbul','koel','banyan']},
+ {id:'baptista',name:'Joseph Baptista Gardens',alt:'Mazagaon Gardens',area:'Mazagaon',lat:18.9656,lng:72.8427,e:'⛵',c:'sea',
+  tags:['view','heritage','play','shade'],hours:'Morning and evening',closed:'None',fee:'Free',v:true,
+  about:'A 1.5-acre hilltop garden built over an 1884 reservoir, on the site of the old Mazagon Fort. Panoramic views of the harbour and the docks.',
+  best:'Early morning, for the harbour view',spot:['kite','parakeet','bougainvillea']},
+ {id:'priyadarshini',name:'Priyadarshini Park',alt:'',area:'Nepean Sea Road',lat:18.9603,lng:72.7978,e:'🏃',c:'sea',
+  tags:['sport','walk','sea','nature'],hours:'Morning and evening slots (sources disagree)',closed:'Check at gate',fee:'Check at gate',v:false,links:[['Park website','http://www.priyadarshinipark.org/'],['Google Maps page','https://maps.google.com/?cid=1871777299010652441']],
+  about:'A seafront park and sports complex of about 20 acres on BMC land, with an eight-lane 400 m running track, a football field and hundreds of coconut palms. Some sports facilities are for club members.',
+  best:'Early morning runs',spot:['kite','coconut','sunbird']},
+ {id:'joggers',name:'Joggers Park',alt:'Sir Oliver Andrade Park',area:'Carter Road, Bandra West',lat:19.0668,lng:72.8217,e:'🌊',c:'sea',
+  tags:['walk','sea','play','heritage'],hours:'5 am–10 am and 3 pm–10 pm (LYPM survey, Jan 2026)',closed:'None',fee:'Free (a nominal fee was charged in the past)',v:true,links:[['Park website','https://joggerspark.org/'],['Google Maps page','https://maps.google.com/?cid=18167443221555928012']],
+  about:'Opened on 27 May 1990 on a former dumping ground at the south end of Carter Road, led by hockey coach and corporator Oliver Andrade. About 13,800 sq m, with a 400 m track (a mud strip and two paved lanes), a play area, a duck pond, drinking water, a washroom and sea-facing benches. In 2022 the BMC approved renaming it after him.',
+  best:'Evening, just before sunset',spot:['kite','crow','coconut','almond']},
+ {id:'bandrafort',name:'Bandra Fort garden',alt:'Castella de Aguada',area:'Bandstand, Bandra West',lat:19.0416,lng:72.8188,e:'🏰',c:'sun',
+  tags:['heritage','view','sea','play'],hours:'6 am–12 pm and 4 pm–7 pm (LYPM survey, Jan 2026)',closed:'None',fee:'Free',v:true,
+  about:'A landscaped garden of about 8,850 sq m around a 1640 Portuguese watchtower, with an amphitheatre, play area, gym, fountain and washroom, looking across to the Sea Link and Worli.',
+  best:'Sunset',spot:['kite','crow']},
+ {id:'patwardhan',name:'Patwardhan Park',alt:'Rao Saheb Patwardhan Udyan',area:'Bandra West',lat:19.0612,lng:72.8352,e:'⚽',c:'leaf',
+  tags:['sport','play','lawn','walk'],hours:'5 am–1 pm and 3 pm–10 pm (LYPM survey, Jan 2026)',closed:'None',fee:'Free',v:true,
+  about:'A 13,750 sq m park on Linking Road with a lawn, play area, jogging track, a viewing bridge and a washroom.',
+  best:'Weekend mornings',spot:['crow','rain','parakeet']},
+ {id:'horniman',name:'Horniman Circle Garden',alt:'',area:'Fort',lat:18.9331,lng:72.8350,e:'🏛️',c:'sun',
+  tags:['heritage','shade','lawn'],hours:'Morning to evening',closed:'None',fee:'Free',v:false,
+  about:'A round garden in the heart of the Fort precinct, ringed by 19th-century buildings. A favourite venue for the Kala Ghoda Arts Festival.',
+  best:'A weekday lunch break',spot:['banyan','crow','koel']},
+ {id:'oval',name:'Oval Maidan',alt:'',area:'Churchgate',lat:18.9297,lng:72.8291,e:'🏏',c:'leaf',
+  tags:['sport','heritage','lawn'],hours:'Open ground',closed:'None',fee:'Free',v:false,
+  about:'A great green lawn between Victorian Gothic and Art Deco buildings, part of a UNESCO World Heritage ensemble. Weekend cricket from morning to dusk.',
+  best:'Sunday mornings',spot:['kite','crow','rain']},
+ {id:'fivegardens',name:'Five Gardens',alt:'Mancherji Joshi Gardens',area:'Dadar Parsi Colony',lat:19.0170,lng:72.8508,e:'🌳',c:'lilac',
+  tags:['walk','shade','heritage','play'],hours:'Morning and evening',closed:'None',fee:'Free',v:false,
+  about:'Five connected garden plots at the heart of Dadar Parsi Colony, shaded by old trees. A favourite walking loop.',
+  best:'Early morning walks',spot:['rain','peepal','koel','bulbul']},
+ {id:'maheshwari',name:'Maheshwari Udyan',alt:'',area:'King\'s Circle, Matunga',lat:19.0275,lng:72.8556,e:'⭕',c:'sun',
+  tags:['walk','shade'],hours:'Listed by BMC as open round the clock',closed:'None',fee:'Free',v:false,
+  about:'A round garden at King\'s Circle, close to Matunga\'s famous South Indian cafés.',
+  best:'Before breakfast at a café nearby',spot:['peepal','crow','bulbul']},
+ {id:'mnp',name:'Maharashtra Nature Park',alt:'',area:'Dharavi / Sion',lat:19.0490,lng:72.8616,e:'🦋',c:'gul',
+  tags:['nature','shade','walk'],hours:'Check before you go',closed:'Check before you go',fee:'Check at gate',v:false,
+  about:'A city forest grown on a former dumping ground beside the Mithi river, with nature trails and butterflies.',
+  best:'Morning, when butterflies are out',spot:['mormon','sunbird','tailor','bulbul']},
+ {id:'nirvana',name:'Nirvana Park',alt:'BMC Nirvana Park, Hiranandani',area:'Powai',lat:19.1195,lng:72.9075,e:'🐟',c:'lilac',
+  tags:['walk','play','nature','shade'],hours:'Morning and evening',closed:'Check at gate',fee:'Free',v:false,
+  about:'An Oriental-style garden with waterside walks, koi ponds, lanterns and play structures.',
+  best:'Evening walks',spot:['koel','bulbul','sunbird']},
+ {id:'forest',name:'Forest Theme Garden',alt:'',area:'Malad West',lat:19.1735,lng:72.8352,e:'🌲',c:'leaf',
+  tags:['nature','play','shade'],hours:'Morning and evening',closed:'Check at gate',fee:'Free',v:false,
+  about:'A BMC garden behind Inorbit Mall, designed to feel like a small forest.',
+  best:'After school',spot:['bulbul','tailor','peepal']},
+ {id:'aarey',name:'Chhota Kashmir, Aarey',alt:'Aarey Lake',area:'Goregaon East',lat:19.1600,lng:72.8772,e:'🛶',c:'sea',
+  tags:['nature','walk','shade'],hours:'Daytime',closed:'Check before you go',fee:'Check at gate',v:false,
+  about:'A lake garden in the green Aarey belt that links to Sanjay Gandhi National Park.',
+  best:'Monsoon and winter mornings',spot:['kingfisher','koel','kite']},
+ {id:'sgnp',name:'Sanjay Gandhi National Park',alt:'Borivali National Park',area:'Borivali East (main gate)',lat:19.2295,lng:72.8668,e:'🐆',c:'leaf',
+  tags:['nature','walk','heritage','shade'],hours:'About 7:30 am to 6:30 pm (varies; confirm before going)',closed:'Mondays',fee:'Ticketed (adults about ₹85–103)',v:true,links:[['Official park website','https://sgnp.maharashtra.gov.in/Site/Home/Index.aspx'],['Google Maps page','https://maps.google.com/?cid=3900642198989365967']],
+  about:'A national park of over 100 sq km inside the city, home to leopards, and to the Kanheri Caves, carved about 2,000 years ago. Run by the Maharashtra Forest Department, not the BMC.',
+  best:'Early morning, outside the monsoon',spot:['banyan','mormon','kingfisher','koel','sunbird']}
+];
+
+const SPECIES = {
+ banyan:{n:'Banyan',m:'वड',e:'🌳',k:'tree',t:'India\'s national tree. Its roots hang from branches like ropes and become new trunks.'},
+ peepal:{n:'Peepal',m:'पिंपळ',e:'🍃',k:'tree',t:'Heart-shaped leaves with a long pointy tip. Listen: they rustle in the faintest breeze.'},
+ gulmohar:{n:'Gulmohar',m:'गुलमोहर',e:'🌺',k:'tree',t:'Blazes red-orange in May, just before the monsoon arrives.'},
+ rain:{n:'Rain tree',m:'',e:'🌂',k:'tree',t:'Huge umbrella shape. Its leaves fold up in the evening and on cloudy days.'},
+ almond:{n:'Indian almond',m:'',e:'🍂',k:'tree',t:'Big leaves that turn red before they fall. Grows happily by the sea.'},
+ coconut:{n:'Coconut palm',m:'नारळ',e:'🥥',k:'tree',t:'The tree of Mumbai\'s coast. Never stand right under one in a storm!'},
+ bougainvillea:{n:'Bougainvillea',m:'',e:'🌸',k:'tree',t:'The bright pink "flowers" are really leaves. The true flowers are the tiny white ones inside.'},
+ koel:{n:'Asian koel',m:'कोकिळा',e:'🐦‍⬛',k:'bird',t:'You hear it before you see it: a rising "ku-oo" call in hot weather.'},
+ bulbul:{n:'Red-vented bulbul',m:'बुलबुल',e:'🐦',k:'bird',t:'Look for a little crest on its head and a red patch under its tail.'},
+ parakeet:{n:'Rose-ringed parakeet',m:'पोपट',e:'🦜',k:'bird',t:'Bright green, red beak, flies in noisy screaming groups.'},
+ kite:{n:'Black kite',m:'घार',e:'🪁',k:'bird',t:'Circles high over the sea and parks. Spot its forked tail.'},
+ crow:{n:'House crow',m:'कावळा',e:'⚫',k:'bird',t:'Grey neck, very clever. Crows can recognise human faces.'},
+ sunbird:{n:'Purple sunbird',m:'',e:'✨',k:'bird',t:'Tiny, with a curved beak for sipping nectar from flowers.'},
+ tailor:{n:'Common tailorbird',m:'',e:'🧵',k:'bird',t:'Stitches leaves together with spider silk to build its nest.'},
+ kingfisher:{n:'White-throated kingfisher',m:'',e:'💙',k:'bird',t:'Electric blue wings. Often sits still on a wire near water.'},
+ mormon:{n:'Blue Mormon',m:'',e:'🦋',k:'bird',t:'Maharashtra\'s state butterfly: large, black and velvety blue.'}
+};
+
+const MOODS = [
+ {k:'walk',e:'🚶',l:'Walk & jog'},{k:'play',e:'🛝',l:'Kids play'},{k:'lawn',e:'🧺',l:'Picnic'},
+ {k:'nature',e:'🌿',l:'Nature'},{k:'sea',e:'🌊',l:'Sea breeze'},{k:'heritage',e:'🏛️',l:'History'}];
+const TAGLABEL = {walk:'Walking',play:'Play area',lawn:'Open lawn',nature:'Nature',sea:'Seaside',heritage:'Heritage',sport:'Sport',zoo:'Zoo',shade:'Shady',view:'Views'};
+
+const NEAR = [
+ {k:'colaba',n:'Colaba / Fort',lat:18.925,lng:72.832},{k:'byculla',n:'Byculla / Mazagaon',lat:18.977,lng:72.835},
+ {k:'malabar',n:'Malabar Hill / Grant Road',lat:18.958,lng:72.810},{k:'worli',n:'Worli / Lower Parel',lat:19.005,lng:72.820},
+ {k:'dadar',n:'Dadar / Matunga',lat:19.020,lng:72.843},{k:'bandra',n:'Bandra / Khar',lat:19.060,lng:72.835},
+ {k:'santacruz',n:'Santacruz / Juhu',lat:19.090,lng:72.835},{k:'andheri',n:'Andheri',lat:19.119,lng:72.847},
+ {k:'powai',n:'Powai',lat:19.118,lng:72.906},{k:'chembur',n:'Chembur / Sion',lat:19.055,lng:72.885},
+ {k:'goregaon',n:'Goregaon / Malad',lat:19.170,lng:72.848},{k:'borivali',n:'Borivali / Kandivali',lat:19.225,lng:72.855}];
+
+// Sample events are clearly marked. Steps Festival dates confirmed by LYPM / Steps.
+const EVENTS = [
+ {id:'e1',d:'2026-10-10',t:'7:00 am',title:'Sunset sketching for families',park:'hanging',kind:'kids',sample:true,blurb:'Bring a notebook and draw the animal hedges. All ages.'},
+ {id:'e2',d:'2026-10-11',t:'7:30 am',title:'Seafront clean-up morning',park:'joggers',kind:'care',sample:true,blurb:'Gloves and bags provided. Finish with chai.'},
+ {id:'e3',d:'2026-10-18',t:'8:00 am',title:'Heritage tree walk',park:'ranibaug',kind:'nature',sample:true,blurb:'Meet some of the city\'s oldest trees with a botanist.'},
+ {id:'e4',d:'2026-10-25',t:'7:00 am',title:'Bird count for beginners',park:'sgnp',kind:'nature',sample:true,blurb:'Binoculars to share. Park entry ticket needed.'},
+ {id:'e5',d:'2026-11-01',t:'5:00 pm',title:'Stories under the banyan',park:'horniman',kind:'kids',sample:true,blurb:'Read-aloud for ages 5 to 10, with a parent.'},
+ {id:'e6',d:'2026-12-19',t:'Saturdays',title:'The Steps Festival, 7th edition',park:null,venue:'The Steps',kind:'culture',sample:false,blurb:'Eight Saturdays of music, art and performance in public space, starting 19 December.'}
+];
+const GROUPS = [
+ {id:'g1',n:'Dadar Morning Walkers',park:'shivaji',e:'🚶',w:'Daily, 6:30 am',d:'Brisk loops of the ground, all paces welcome.'},
+ {id:'g2',n:'Carter Road Runners',park:'joggers',e:'🏃',w:'Tue & Sat, 6:00 am',d:'5 km easy runs along the sea.'},
+ {id:'g3',n:'Little Naturalists (parent-led)',park:'ranibaug',e:'🔍',w:'1st Sunday, 9:30 am',d:'Parents and kids spotting trees and birds together.'},
+ {id:'g4',n:'Powai Birders',park:'nirvana',e:'🐦',w:'Sundays, 7:00 am',d:'Beginners welcome. Quiet voices, sharp eyes.'},
+ {id:'g5',n:'Mazgaon Heritage Strollers',park:'baptista',e:'🏛️',w:'Last Saturday, 5:00 pm',d:'Slow walks through Mazgaon\'s hills and history.'}
+];
+const FACTS = [
+ {e:'🌳',t:'Rani Baug is Mumbai\'s oldest public garden. Work on it began in 1861.'},
+ {e:'💧',t:'The Hanging Gardens and Joseph Baptista Gardens were both built on top of water reservoirs in the 1880s.'},
+ {e:'🏏',t:'Shivaji Park was created in 1925 and covers about 28 acres. More than half of it is used by clubs.'},
+ {e:'🐆',t:'Sanjay Gandhi National Park is one of the few national parks inside a big city. Leopards live there.'},
+ {e:'🗺️',t:'The BMC looks after roughly 1,068 open-space plots: gardens, playgrounds and recreation grounds (2023 figure).'},
+ {e:'🌿',t:'Malabar Hill has Mumbai\'s first elevated nature trail. It opened in March 2025 and runs through a real urban forest.'},
+ {e:'🦋',t:'The Blue Mormon is Maharashtra\'s state butterfly. Look for it in shady, leafy parks.'}
+];
+const QUESTS = [
+ {k:'pass',e:'🎫',n:'Park hopper',d:'Collect 5 park stamps',goal:5,f:()=>Object.keys(S.stamps).length},
+ {k:'tree',e:'🌳',n:'Tree spotter',d:'Spot 5 kinds of tree',goal:5,f:()=>Object.keys(S.spotted).filter(x=>SPECIES[x]&&SPECIES[x].k==='tree').length},
+ {k:'bird',e:'🐦',n:'Bird ears',d:'Spot 4 birds or butterflies',goal:4,f:()=>Object.keys(S.spotted).filter(x=>SPECIES[x]&&SPECIES[x].k==='bird').length},
+ {k:'sea',e:'🌅',n:'Sea and sky',d:'Stamp 2 seaside parks',goal:2,f:()=>Object.keys(S.stamps).filter(id=>pk(id)&&pk(id).tags.includes('sea')).length},
+ {k:'old',e:'🏛️',n:'Time traveller',d:'Stamp 3 heritage parks',goal:3,f:()=>Object.keys(S.stamps).filter(id=>pk(id)&&pk(id).tags.includes('heritage')).length}
+];
+
+/* ---------- STATE (on this device only) ---------- */
+const KEY='lypm-v8';
+let S={stamps:{},saved:[],rsvp:[],joined:[],spotted:{},notes:[],kids:false,big:false,near:'bandra',mood:null,region:'all',filter:null,evf:'all',fact:0,here:null};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ---------- HELPERS ---------- */
+const $=s=>document.querySelector(s);
+const pk=id=>PARKS.find(p=>p.id===id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function km(a,b){const R=6371,r=x=>x*Math.PI/180;const dLa=r(b.lat-a.lat),dLo=r(b.lng-a.lng);const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function here(){return S.here||NEAR.find(n=>n.k===S.near)||NEAR[5];}
+function distTxt(p){const d=km(here(),p);return d<1?Math.round(d*1000)+' m':d.toFixed(1)+' km';}
+const COL={leaf:'var(--leaf-soft)',gul:'var(--gul-soft)',sun:'var(--sun-soft)',sea:'var(--sea-soft)',lilac:'var(--lilac-soft)'};
+const TILES=['var(--leaf-soft)','var(--sun-soft)','var(--lilac-soft)','var(--sea-soft)','var(--gul-soft)','var(--leaf-soft)'];
+const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function burst(el){if(REDUCED||!el)return;const r=el.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const bits=['🍃','🌸','✨','🌼','💚','🎉'];for(let i=0;i<14;i++){const d=document.createElement('span');d.className='confetti';d.textContent=bits[i%bits.length];const a=Math.random()*Math.PI*2,dist=50+Math.random()*70;d.style.setProperty('--x0',cx-9+'px');d.style.setProperty('--y0',cy-9+'px');d.style.setProperty('--x1',cx-9+Math.cos(a)*dist+'px');d.style.setProperty('--y1',cy-9+Math.sin(a)*dist-30+'px');d.style.setProperty('--r',(Math.random()*360-180)+'deg');document.body.appendChild(d);setTimeout(()=>d.remove(),950);}}
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2800);}
+function dirURL(p){return 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng+'&travelmode=transit';}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function parkRow(p){return `<button class="prow" data-park="${p.id}"><span class="blob" style="background:${COL[p.c]}">${p.e}</span><span class="t"><b>${esc(p.name)}</b><small>${esc(p.area)}</small></span><span class="dist">${distTxt(p)}</span></button>`;}
+function eventCard(ev){
+  const dt=new Date(ev.d+'T00:00:00');const p=ev.park?pk(ev.park):null;const on=S.rsvp.includes(ev.id);
+  return `<article class="ev"><div class="date"><b>${dt.getDate()}</b><span>${MON[dt.getMonth()]}</span></div><div>
+  <h3>${esc(ev.title)}${ev.sample?'<span class="sample">sample</span>':''}</h3>
+  <p>${esc(ev.t)} · ${p?esc(p.name):esc(ev.venue)}</p><p>${esc(ev.blurb)}</p>
+  <div class="act"><button class="btn ${on?'done':'gul'} grown" data-rsvp="${ev.id}">${on?'✓ Going':"I'm going"}</button>
+  <span class="kidsonly about" style="align-self:center">Ask a grown-up to sign up</span>
+  ${p?`<button class="btn ghost" data-park="${p.id}">See park</button>`:''}</div></div></article>`;}
+
+/* ---------- RENDER: HOME ---------- */
+function renderHome(){
+  const h=new Date().getHours();
+  $('#greet').textContent=h<12?'Good morning!':h<17?'Good afternoon!':'Good evening!';
+  $('#moods').innerHTML=MOODS.map((m,i)=>`<button class="mood" style="--tile:${TILES[i%TILES.length]}" data-mood="${m.k}" aria-pressed="${S.mood===m.k}"><span class="e">${m.e}</span>${m.l}</button>`).join('');
+  if(S.mood){const ps=PARKS.filter(p=>p.tags.includes(S.mood)).sort((a,b)=>km(here(),a)-km(here(),b)).slice(0,4);
+    $('#moodResults').innerHTML=`<div class="sec"><h2>${MOODS.find(m=>m.k===S.mood).l} near you</h2></div><div class="list">${ps.map(parkRow).join('')}</div>`;}
+  else $('#moodResults').innerHTML='';
+  const day=Math.floor(Date.now()/864e5);const p=PARKS[day%PARKS.length];
+  $('#potd').innerHTML=`<button class="card potd" data-park="${p.id}"><span class="blob" style="background:${COL[p.c]}">${p.e}</span><span><h3>${esc(p.name)}</h3><p>${esc(p.area)}</p><span class="tagrow">${p.tags.slice(0,3).map(t=>`<span class="tag">${TAGLABEL[t]}</span>`).join('')}</span></span></button>`;
+  $('#nearList').innerHTML=[...PARKS].sort((a,b)=>km(here(),a)-km(here(),b)).slice(0,3).map(parkRow).join('');
+  $('#homeEvents').innerHTML=EVENTS.slice(0,2).map(eventCard).join('');
+  const f=FACTS[S.fact%FACTS.length];$('#fact').innerHTML=`<span class="e">${f.e}</span><p>${esc(f.t)}</p>`;
+}
+
+/* ---------- MAP ---------- */
+const COAST=[[18.895,72.810],[18.905,72.812],[18.915,72.818],[18.925,72.821],[18.935,72.824],[18.948,72.822],[18.955,72.813],[18.953,72.802],[18.946,72.795],[18.952,72.791],[18.962,72.796],[18.972,72.805],[18.982,72.810],[18.995,72.812],[19.012,72.813],[19.025,72.818],[19.028,72.833],[19.040,72.838],[19.044,72.828],[19.042,72.818],[19.055,72.819],[19.068,72.820],[19.085,72.825],[19.100,72.826],[19.120,72.822],[19.135,72.812],[19.150,72.800],[19.180,72.795],[19.215,72.785],[19.250,72.790],[19.285,72.800],[19.292,72.860],[19.280,72.910],[19.245,72.955],[19.200,72.975],[19.170,72.960],[19.140,72.945],[19.110,72.935],[19.080,72.932],[19.050,72.935],[19.020,72.940],[19.000,72.905],[18.995,72.866],[18.975,72.851],[18.958,72.847],[18.940,72.843],[18.925,72.838],[18.910,72.831],[18.895,72.815]];
+const FOREST=[[19.290,72.870],[19.280,72.912],[19.225,72.935],[19.160,72.925],[19.135,72.902],[19.150,72.878],[19.200,72.866],[19.250,72.862]];
+const LABELS=[['Colaba',18.905,72.819],['Fort',18.935,72.836],['Dadar',19.019,72.848],['Bandra',19.055,72.840],['Andheri',19.119,72.850],['Powai',19.112,72.915],['Chembur',19.062,72.905],['Borivali',19.230,72.840],['Malad',19.185,72.815],['Sanjay Gandhi NP',19.205,72.905]];
+const X=lng=>(lng-72.77)*945, Y=lat=>(19.30-lat)*1000;
+const REG=[{k:'all',n:'All Mumbai',vb:[2,0,222,420]},{k:'south',n:'South',vb:[6,305,92,105]},{k:'central',n:'Dadar & Worli',vb:[30,240,95,95]},
+ {k:'west',n:'Bandra to Malad',vb:[20,115,110,150]},{k:'east',n:'Powai & east',vb:[70,140,140,140]},{k:'north',n:'North & SGNP',vb:[15,0,170,150]}];
+function poly(pts){return pts.map(([a,b])=>X(b).toFixed(1)+','+Y(a).toFixed(1)).join(' ');}
+function renderMap(){
+  const r=REG.find(x=>x.k===S.region)||REG[0];const vb=r.vb;const s=vb[2]/222;
+  const list=filteredParks();
+  let g=`<polygon points="${poly(COAST)}" fill="var(--land)" stroke="var(--leaf)" stroke-width="${0.9*s}" stroke-linejoin="round"/>`;
+  g+=`<polygon points="${poly(FOREST)}" fill="var(--leaf-soft)" stroke="none"/>`;
+  g+=`<ellipse cx="${X(72.905)}" cy="${Y(19.127)}" rx="${4}" ry="${3}" fill="var(--water)"/>`;
+  g+=LABELS.map(([n,a,b])=>`<text x="${X(b)}" y="${Y(a)}" font-size="${9.5*s}" fill="var(--muted)" font-family="Mukta" text-anchor="middle">${n}</text>`).join('');
+  const h=here();g+=`<circle cx="${X(h.lng)}" cy="${Y(h.lat)}" r="${3.2*s}" fill="var(--sea)" stroke="#fff" stroke-width="${1*s}"/>`;
+  g+=list.map(p=>{const st=S.stamps[p.id];return `<g class="pin" data-park="${p.id}" role="button" tabindex="0" aria-label="${esc(p.name)}"><circle cx="${X(p.lng)}" cy="${Y(p.lat)}" r="${(9*s)}" fill="transparent"/><circle cx="${X(p.lng)}" cy="${Y(p.lat)}" r="${5.2*s}" fill="${st?'var(--gul)':'var(--leaf)'}" stroke="#fff" stroke-width="${1.2*s}"/></g>`;}).join('');
+  const m=$('#map');m.setAttribute('viewBox',vb.join(' '));m.innerHTML=g;
+}
+function filteredParks(){return PARKS.filter(p=>!S.filter||p.tags.includes(S.filter));}
+function renderExplore(){
+  $('#regions').innerHTML=REG.map(r=>`<button class="chip" data-region="${r.k}" aria-pressed="${S.region===r.k}">${r.n}</button>`).join('');
+  $('#nearSel').innerHTML=(S.here?'<option value="gps" selected>My location</option>':'')+NEAR.map(n=>`<option value="${n.k}" ${!S.here&&S.near===n.k?'selected':''}>${n.n}</option>`).join('');
+  const tags=['walk','play','lawn','nature','sea','sport','heritage','view','shade'];
+  $('#filters').innerHTML=`<button class="chip" data-filter="" aria-pressed="${!S.filter}">All</button>`+tags.map(t=>`<button class="chip" data-filter="${t}" aria-pressed="${S.filter===t}">${TAGLABEL[t]}</button>`).join('');
+  const list=filteredParks().sort((a,b)=>km(here(),a)-km(here(),b));
+  $('#pcount').textContent=list.length+' parks';
+  $('#parkList').innerHTML=list.length?list.map(parkRow).join(''):'<div class="empty">No parks match that yet. Try another filter.</div>';
+  renderMap();
+}
+
+/* ---------- HAPPENINGS ---------- */
+function renderHappen(){
+  const kinds=[['all','Everything'],['kids','Kids & families'],['nature','Nature'],['care','Park care'],['culture','Culture']];
+  $('#evFilters').innerHTML=kinds.map(([k,n])=>`<button class="chip" data-evf="${k}" aria-pressed="${S.evf===k}">${n}</button>`).join('');
+  const evs=EVENTS.filter(e=>S.evf==='all'||e.kind===S.evf);
+  $('#eventList').innerHTML=evs.length?evs.map(eventCard).join(''):'<div class="empty">Nothing in this category yet.</div>';
+  $('#groupList').innerHTML=GROUPS.map(g=>{const p=pk(g.park);const on=S.joined.includes(g.id);
+    return `<article class="ev"><div class="date" style="background:var(--leaf-soft)"><b style="font-size:1.8em">${g.e}</b></div><div><h3>${esc(g.n)}<span class="sample">sample</span></h3><p>${esc(g.w)} · ${esc(p.name)}</p><p>${esc(g.d)}</p><div class="act"><button class="btn ${on?'done':''}" data-join="${g.id}">${on?'✓ Joined':'Join group'}</button><button class="btn ghost" data-park="${p.id}">See park</button></div></div></article>`;}).join('');
+}
+
+/* ---------- LEARN ---------- */
+function spCard(id){const s=SPECIES[id];const on=!!S.spotted[id];return `<button class="species" data-spot="${id}" aria-pressed="${on}"><span class="e">${s.e}</span><b>${s.n}</b>${s.m?`<i>${s.m}</i>`:''}<p>${esc(s.t)}</p><p style="font-weight:700;color:var(--leaf)">${on?'✓ Spotted!':'Tap when you spot it'}</p></button>`;}
+function renderLearn(){
+  $('#quests').innerHTML=QUESTS.map(q=>{const v=Math.min(q.f(),q.goal);return `<div class="quest"><span class="e">${q.e}</span><div style="flex:1"><b>${q.n}</b> <small class="about">${v}/${q.goal}</small><div class="about">${q.d}</div><div class="bar"><i style="width:${v/q.goal*100}%"></i></div></div>${v>=q.goal?'<span style="font-size:24px">🏅</span>':''}</div>`;}).join('');
+  $('#trees').innerHTML=Object.keys(SPECIES).filter(k=>SPECIES[k].k==='tree').map(spCard).join('');
+  $('#birds').innerHTML=Object.keys(SPECIES).filter(k=>SPECIES[k].k==='bird').map(spCard).join('');
+}
+
+/* ---------- ME ---------- */
+function renderMe(){
+  $('#stampCount').textContent=Object.keys(S.stamps).length+' / '+PARKS.length;
+  $('#stamps').innerHTML=PARKS.map(p=>`<button class="stamp ${S.stamps[p.id]?'got':''}" data-park="${p.id}" aria-label="${esc(p.name)}${S.stamps[p.id]?', stamped':''}">${p.e}</button>`).join('');
+  $('#badges').innerHTML=QUESTS.map(q=>`<span class="badge ${q.f()>=q.goal?'got':''}">${q.e} ${q.n}</span>`).join('');
+  const sv=S.saved.map(pk).filter(Boolean);
+  $('#savedList').innerHTML=sv.length?sv.map(parkRow).join(''):'<div class="empty">Tap ♥ on any park to keep it here.</div>';
+  $('#notesList').innerHTML=S.notes.length?S.notes.slice().reverse().map(n=>`<div class="card"><b>${n.kind==='love'?'💚 Shout-out':n.kind==='idea'?'💡 Idea':'🔧 Needs care'}</b> · ${esc(pk(n.park).name)}<p style="margin:4px 0 0">${esc(n.text)}</p>${n.fix?`<p class="about" style="margin:4px 0 0">Suggested fix: ${esc(n.fix)}</p>`:''}<small class="about">Saved on this phone · ${new Date(n.at).toLocaleDateString()}</small></div>`).join(''):'<div class="empty">Notes you write about a park appear here.</div>';
+  $('#kidsSw').setAttribute('aria-checked',S.kids);$('#bigSw').setAttribute('aria-checked',S.big);
+}
+
+/* ---------- PARK SHEET ---------- */
+let helpKind='love';
+function openPark(id){
+  const p=pk(id);if(!p)return;
+  const evs=EVENTS.filter(e=>e.park===id), gs=GROUPS.filter(g=>g.park===id);
+  const saved=S.saved.includes(id), st=S.stamps[id];
+  $('#panel').innerHTML=`
+  <div class="hero" style="background:${COL[p.c]}">
+    <button class="iconbtn close" id="closeSheet" aria-label="Back">←</button>
+    <div class="big" aria-hidden="true">${p.e}</div>
+    <h2 id="sheetTitle">${esc(p.name)}</h2>
+    <div class="sub">${p.alt?esc(p.alt)+' · ':''}${esc(p.area)} · ${distTxt(p)} away</div>
+    <div class="tagrow">${p.tags.map(t=>`<span class="tag" style="background:var(--card)">${TAGLABEL[t]}</span>`).join('')}${p.v?'<span class="tag" style="background:var(--card)">✓ Details checked Oct 2026</span>':'<span class="tag warn">Check before you go</span>'}</div>
+  </div>
+  <div class="actions">
+    <a href="${dirURL(p)}" target="_blank" rel="noopener"><span class="e">🧭</span>Directions</a>
+    <button id="stampBtn" class="${st?'on':''}"><span class="e">${st?'✅':'🎫'}</span>${st?'Stamped':'Collect stamp'}</button>
+    <button id="saveBtn" class="${saved?'on':''}"><span class="e">${saved?'💚':'🤍'}</span>${saved?'Saved':'Save'}</button>
+    <button id="shareBtn"><span class="e">📤</span>Share</button>
+  </div>
+  <div class="facts" style="margin-top:14px">
+    <div><small>Open</small><b>${esc(p.hours)}</b></div>
+    <div><small>Closed</small><b>${esc(p.closed)}</b></div>
+    <div><small>Entry</small><b>${esc(p.fee)}</b></div>
+    <div><small>Best time</small><b>${esc(p.best)}</b></div>
+  </div>
+  <div class="block">
+    <h3>About</h3><p>${esc(p.about)}</p>
+    ${p.links?`<div class="spot" style="margin-top:4px">${p.links.map(([l,u])=>`<a class="sp" style="text-decoration:none;color:var(--ink);display:inline-flex;align-items:center" href="${u}" target="_blank" rel="noopener">🔗 ${esc(l)}</a>`).join('')}</div>`:''}
+    <h3>Things to spot here</h3>
+    <div class="spot">${p.spot.map(s=>`<button class="sp" data-spot="${s}" aria-pressed="${!!S.spotted[s]}">${SPECIES[s].e} ${SPECIES[s].n}</button>`).join('')}</div>
+    ${evs.length||gs.length?`<h3>Happening here</h3><div class="list">${evs.map(eventCard).join('')}${gs.map(g=>`<div class="prow grown"><span class="blob" style="background:var(--leaf-soft)">${g.e}</span><span class="t"><b>${esc(g.n)}</b><small>${esc(g.w)}</small></span></div>`).join('')}</div>`:''}
+    <div class="grown">
+      <h3>Help this park</h3>
+      <div class="help">
+        <div class="kinds">
+          <button data-kind="love" aria-pressed="true"><span class="e">💚</span>Shout-out</button>
+          <button data-kind="idea" aria-pressed="false"><span class="e">💡</span>Idea</button>
+          <button data-kind="care" aria-pressed="false"><span class="e">🔧</span>Needs care</button>
+        </div>
+        <label class="f" for="helpText" id="helpLbl">What's going well here?</label>
+        <textarea id="helpText" placeholder="The new benches near the east gate are lovely."></textarea>
+        <div id="fixWrap" hidden><label class="f" for="fixText">What would make it better?</label><textarea id="fixText" placeholder="A dustbin near the play area would help."></textarea></div>
+        <p class="about">No names of people or officials, please. Photos come in the full app.</p>
+        <button class="btn" id="helpSend" style="width:100%">Send to LYPM</button>
+      </div>
+      <p class="note" style="margin-top:10px">To report a problem officially, use the BMC's <a href="https://marg.mcgm.gov.in/MARG/welcomePage.html" target="_blank" rel="noopener" style="color:var(--leaf)">MyBMC MARG complaints portal</a> or the MyBMC Assist WhatsApp chatbot on <b>+91 89992 28999</b>. Something urgent or unsafe, like a fallen tree or a live wire? Call <b>1916</b>.</p>
+    </div>
+  </div>`;
+  helpKind='love';
+  $('#sheet').classList.add('on');$('#sheet').setAttribute('aria-hidden','false');
+  $('#panel').scrollTop=0;setTimeout(()=>$('#closeSheet').focus(),30);
+  $('#closeSheet').onclick=closeSheet;
+  $('#stampBtn').onclick=()=>{if(S.stamps[id])delete S.stamps[id];else{S.stamps[id]=Date.now();toast('Stamp collected! '+p.e);burst($('#stampBtn'));}save();const b=$('#stampBtn');openPark(id);refresh();};
+  $('#saveBtn').onclick=()=>{S.saved=saved?S.saved.filter(x=>x!==id):[...S.saved,id];save();openPark(id);refresh();};
+  $('#shareBtn').onclick=async()=>{const txt=p.name+', '+p.area+' — found on Love Your Parks Mumbai. Directions: '+dirURL(p);
+    try{if(navigator.share){await navigator.share({title:p.name,text:txt});}else{await navigator.clipboard.writeText(txt);toast('Copied, ready to paste');}}catch(e){}};
+  $('#panel').querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{helpKind=b.dataset.kind;
+    $('#panel').querySelectorAll('[data-kind]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    $('#fixWrap').hidden=helpKind!=='care';
+    $('#helpLbl').textContent=helpKind==='love'?"What's going well here?":helpKind==='idea'?'What would you add or change?':'What needs care?';});
+  $('#helpSend').onclick=()=>{const t=$('#helpText').value.trim(),fx=$('#fixText')?$('#fixText').value.trim():'';
+    if(!t){toast('Write a line first');$('#helpText').focus();return;}
+    if(helpKind==='care'&&!fx){toast('Add what would make it better');$('#fixText').focus();return;}
+    S.notes.push({park:id,kind:helpKind,text:t,fix:helpKind==='care'?fx:'',at:Date.now()});save();
+    $('#helpText').value='';if($('#fixText'))$('#fixText').value='';
+    toast('Thank you! Saved on this phone for now.');refresh();};
+}
+function closeSheet(){$('#sheet').classList.remove('on');$('#sheet').setAttribute('aria-hidden','true');}
+
+/* ---------- NAV & EVENTS ---------- */
+function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+  document.querySelectorAll('.nav button').forEach(b=>{if(b.dataset.go===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+  window.scrollTo(0,0);}
+function applyMode(){document.body.classList.toggle('kids',S.kids);document.body.classList.toggle('big',S.big);
+  if(S.kids){const g=document.querySelector('[data-seg="events"]');if(g)g.click();}}
+function refresh(){renderHome();renderExplore();renderHappen();renderLearn();renderMe();applyMode();}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-park],[data-go],[data-mood],[data-region],[data-filter],[data-evf],[data-rsvp],[data-join],[data-spot],[data-seg]');
+  if(!t)return;const d=t.dataset;
+  if(d.go){go(d.go);return;}
+  if(d.rsvp){S.rsvp=S.rsvp.includes(d.rsvp)?S.rsvp.filter(x=>x!==d.rsvp):[...S.rsvp,d.rsvp];save();if(S.rsvp.includes(d.rsvp))burst(t);toast(S.rsvp.includes(d.rsvp)?"You're going! 🎉":'Removed');refresh();if($('#sheet').classList.contains('on')){const id=$('#sheetTitle')&&PARKS.find(p=>p.name===$('#sheetTitle').textContent);if(id)openPark(id.id);}return;}
+  if(d.join){S.joined=S.joined.includes(d.join)?S.joined.filter(x=>x!==d.join):[...S.joined,d.join];save();refresh();return;}
+  if(d.spot){if(S.spotted[d.spot])delete S.spotted[d.spot];else{S.spotted[d.spot]=Date.now();toast(SPECIES[d.spot].e+' Nice spotting!');burst(t);}save();refresh();
+    if($('#sheet').classList.contains('on'))t.setAttribute('aria-pressed',!!S.spotted[d.spot]);return;}
+  if(d.mood!==undefined){S.mood=S.mood===d.mood?null:d.mood;save();renderHome();return;}
+  if(d.region!==undefined){S.region=d.region;save();renderExplore();return;}
+  if(d.filter!==undefined){S.filter=d.filter||null;save();renderExplore();return;}
+  if(d.evf){S.evf=d.evf;save();renderHappen();return;}
+  if(d.seg){document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-selected',b===t));$('#segEvents').hidden=d.seg!=='events';$('#segGroups').hidden=d.seg!=='groups';return;}
+  if(d.park){openPark(d.park);}
+});
+$('#map').addEventListener('keydown',e=>{const g=e.target.closest('[data-park]');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openPark(g.dataset.park);}});
+$('#scrim').onclick=closeSheet;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').classList.contains('on'))closeSheet();});
+$('#nextFact').onclick=()=>{S.fact++;save();renderHome();};
+$('#nearSel').onchange=e=>{if(e.target.value!=='gps'){S.near=e.target.value;S.here=null;}save();refresh();};
+$('#locBtn').onclick=()=>{if(!navigator.geolocation){toast('Location is not available here. Pick your area instead.');return;}
+  navigator.geolocation.getCurrentPosition(pos=>{S.here={lat:pos.coords.latitude,lng:pos.coords.longitude};save();refresh();toast('Sorted by distance from you');},
+  ()=>toast('Location is off. Pick your area from the list.'),{timeout:8000});};
+$('#kidsSw').onclick=()=>{S.kids=!S.kids;save();refresh();toast(S.kids?'Kids mode on 🧒':'Kids mode off');};
+$('#bigSw').onclick=()=>{S.big=!S.big;save();refresh();};
+$('#textBtn').onclick=()=>{S.big=!S.big;save();refresh();toast(S.big?'Bigger text on':'Normal text');};
+
+refresh();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
