@@ -254,6 +254,35 @@ button:active,.prow:active,.actions a:active{transform:scale(.95)}
 @keyframes burst{0%{transform:translate(var(--x0),var(--y0)) scale(.4);opacity:1}100%{transform:translate(var(--x1),var(--y1)) rotate(var(--r)) scale(1);opacity:0}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
+/* street map */
+.mapwrap{z-index:0;isolation:isolate}
+#lmap{width:100%;height:min(380px,52vh);display:none;background:var(--land)}
+.mapwrap.street #lmap{display:block}.mapwrap.street #map{display:none}
+.mapmode{display:flex;gap:8px;margin:10px 0 0}
+.mapmode button{flex:1;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:9px;font-weight:700;min-height:44px}
+.mapmode button[aria-pressed="true"]{background:var(--leaf);color:#fff;border-color:var(--leaf)}
+.leaflet-container{font-family:'Mukta',system-ui,sans-serif}
+.leaflet-tooltip{font-weight:600;border-radius:10px}
+.mapnote{position:absolute;left:10px;right:10px;bottom:10px;background:var(--card);border-radius:12px;padding:8px 10px;font-size:.85em;box-shadow:var(--shadow);z-index:1000}
+/* v9 */
+.search{width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;min-height:48px;margin:10px 0 2px;box-shadow:var(--shadow)}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.quick .chip{min-height:40px}
+.chip.on{background:var(--leaf);color:#fff;border-color:var(--leaf)}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.how div{background:var(--bg);border-radius:14px;padding:8px;text-align:center;font-size:.82em;font-weight:600}
+.how div span{display:block;font-size:22px}
+.leaflet-bar a.locate{font-size:16px;line-height:30px}
+.setpanel{padding:18px}
+.setpanel h2{font-size:1.6em;margin:30px 0 12px}
+.setpanel h3{font-size:1.1em;margin:20px 0 8px}
+.setpanel select{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:8px 10px;min-height:44px;flex:1}
+.privacy{background:var(--leaf-soft);border-radius:18px;padding:14px}
+.privacy p{margin:6px 0 0}
+.welcome .step{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:18px;padding:12px;box-shadow:var(--shadow);margin-bottom:10px}
+.welcome .step .e{font-size:30px}
+.cal{display:flex;gap:8px;flex-wrap:wrap}
+.cal .btn{padding:8px 12px;min-height:40px;font-size:.9em}
 /* kids mode */
 body.kids .grown{display:none !important}
 body.kids{font-size:18px}
@@ -266,7 +295,7 @@ body.kids .kidsonly{display:block}
   <header class="top">
     <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="12" fill="var(--leaf)"/><path d="M20 31c-6-4.2-10-7.6-10-12.2C10 15.6 12.4 13 15.3 13c2 0 3.6 1.1 4.7 2.7C21.1 14.1 22.7 13 24.7 13c2.9 0 5.3 2.6 5.3 5.8C30 23.4 26 26.8 20 31z" fill="var(--sun)"/><path d="M20 30V17.5M20 22l-3.5-3M20 25l3.6-3.2" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>
     <div class="brand"><b>Love Your Parks</b><span>Mumbai</span></div>
-    <button class="iconbtn" id="textBtn" aria-label="Bigger text">Aa</button>
+    <button class="iconbtn" data-open="settings" aria-label="Settings, privacy and language">⚙️</button>
   </header>
 
   <!-- HOME -->
@@ -287,6 +316,7 @@ body.kids .kidsonly{display:block}
       </svg>
       <div class="txt"><h1 id="greet">Good morning!</h1><p>Where are we going today?</p></div>
     </div>
+    <div class="quick"><button class="chip" id="kidsQuick" aria-pressed="false">🧒 Kids mode</button><button class="chip" data-open="settings">🔒 No sign-up · stays on your phone</button></div>
     <div class="moods" id="moods"></div>
     <div id="moodResults"></div>
 
@@ -294,6 +324,7 @@ body.kids .kidsonly{display:block}
     <div id="potd"></div>
 
     <div class="sec"><h2>Close to you</h2><button class="link" data-go="map">See the map</button></div>
+    <p class="about" style="margin:-6px 0 10px" id="nearLabel"></p>
     <div class="list" id="nearList"></div>
 
     <div class="sec"><h2>Coming up</h2><button class="link" data-go="happen">All events</button></div>
@@ -305,12 +336,11 @@ body.kids .kidsonly{display:block}
 
   <!-- MAP -->
   <section id="v-map" class="view" aria-label="Map">
-    <div class="hello"><h1>Explore</h1><p>Tap a dot to meet a park.</p></div>
-    <div class="regions" id="regions"></div>
-    <div class="mapwrap"><svg id="map" role="img" aria-label="Map of Mumbai parks"></svg></div>
-    <div class="near"><span>I'm near</span><select id="nearSel" aria-label="Choose your area"></select><button class="btn ghost" id="locBtn">📍 Use my location</button></div>
-    <div class="sec"><h2>Parks</h2><span class="about" id="pcount"></span></div>
+    <div class="hello"><h1>Explore</h1><p>Find a park, then tap it to see more.</p></div>
+    <input class="search" id="q" type="search" placeholder="🔍 Search parks, e.g. Joggers or Khar" aria-label="Search parks" autocomplete="off">
     <div class="filters" id="filters"></div>
+    <div class="mapwrap street" id="mapwrap"><svg id="map" role="img" aria-label="Map of Mumbai parks"></svg><div id="lmap" aria-label="Street map of Mumbai parks"></div></div>
+    <div class="sec"><h2 id="listTitle">Nearest first</h2><span class="about" id="pcount"></span></div>
     <div class="list" id="parkList"></div>
   </section>
 
@@ -354,9 +384,12 @@ body.kids .kidsonly{display:block}
     <div class="hello"><h1>My parks</h1><p>Everything here stays on this phone.</p></div>
     <div class="pass">
       <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="font-size:1.35em">Park Passport</h2><b id="stampCount" class="disp" style="color:var(--gul)"></b></div>
-      <p class="about" style="margin:4px 0 0">Visit a park, open its page and tap "Collect stamp".</p>
+      <div class="how"><div><span>🚶</span>1. Go to a park</div><div><span>📲</span>2. Open its page here</div><div><span>🎫</span>3. Tap "Collect stamp"</div></div>
+      <p class="about" style="margin:8px 0 0">The app checks you're really at the park (if you allow location). Collect stamps to earn badges and fill your passport.</p>
       <div class="stamps" id="stamps"></div>
     </div>
+    <div class="sec grown"><h2>My plans</h2><button class="link" data-go="happen">Find events</button></div>
+    <div class="list grown" id="plansList"></div>
     <div class="sec"><h2>Badges</h2></div>
     <div class="badges" id="badges"></div>
     <div class="sec"><h2>Saved parks</h2></div>
@@ -364,18 +397,7 @@ body.kids .kidsonly{display:block}
     <div class="sec grown"><h2>My notes to LYPM</h2></div>
     <div class="list grown" id="notesList"></div>
     <div class="sec"><h2>Settings</h2></div>
-    <div class="card">
-      <div class="set"><div><b>Kids mode</b><small>Bigger and simpler. Hides groups and park reports.</small></div><button class="sw" role="switch" id="kidsSw" aria-checked="false" aria-label="Kids mode"></button></div>
-      <div class="set"><div><b>Bigger text</b><small>Easier reading for everyone.</small></div><button class="sw" role="switch" id="bigSw" aria-checked="false" aria-label="Bigger text"></button></div>
-      <div class="set"><div><b>Language</b><small>हिंदी and मराठी are coming in the full app.</small></div><span class="tag">English</span></div>
-    </div>
-    <div class="sec"><h2>About this prototype</h2></div>
-    <div class="card about">
-      <p style="margin-top:0">Love Your Parks Mumbai, version 8 prototype. Park details were checked against public and BMC sources in October 2026. Timings and fees change, so parks marked "check before you go" still need confirming with the park or BMC.</p>
-      <p>Events and groups marked "sample" are examples only. The Steps Festival dates are real.</p>
-      <p>Official BMC links: <a href="https://mcgm.maps.arcgis.com/apps/webappviewer/index.html?id=e2da11c7f81a47d39326b23212eba490" target="_blank" rel="noopener">BMC map of gardens</a> · <a href="https://marg.mcgm.gov.in/MARG/welcomePage.html" target="_blank" rel="noopener">MyBMC MARG complaints</a> · <a href="https://portal.mcgm.gov.in/irj/portal/anonymous/qlgardenauth" target="_blank" rel="noopener">Garden &amp; Tree Authority</a></p>
-      <p style="margin-bottom:0">Something urgent or unsafe in a park? Call the BMC helpline on <b>1916</b>.</p>
-    </div>
+    <button class="prow" data-open="settings"><span class="blob" style="background:var(--lilac-soft)">⚙️</span><span class="t"><b>Settings, privacy &amp; language</b><small>Kids mode, text size, your area, about the app</small></span><span class="dist">›</span></button>
   </section>
 </div>
 
@@ -498,6 +520,14 @@ const SPECIES = {
  mormon:{n:'Blue Mormon',m:'',e:'🦋',k:'bird',t:'Maharashtra\'s state butterfly: large, black and velvety blue.'}
 };
 
+const PARKFACT={bandrafort:'Built in 1640, the fort guarded the mouth of the Mahim creek. Today it is a favourite sunset spot looking across to the Sea Link.',
+ joggers:'Opened on 27 May 1990 on a former dumping ground, it showed Mumbai that neglected land could become a loved park.',
+ ranibaug:'Mumbai\'s oldest public garden: work on it began in 1861.',
+ hanging:'The gardens sit on top of a water reservoir and were laid out in 1881. The hedges are clipped into animal shapes.',
+ shivaji:'Created in 1925, this ground has produced many of India\'s best-known cricketers.',
+ sgnp:'Leopards live here, inside the city limits, alongside the 2,000-year-old Kanheri Caves.',
+ naturetrail:'Mumbai\'s first elevated nature trail opened in March 2025, letting you walk through the treetops of a real urban forest.',
+ baptista:'The garden is built over an 1884 reservoir, on the site of the old Mazagaon fort.'};
 const MOODS = [
  {k:'walk',e:'🚶',l:'Walk & jog'},{k:'play',e:'🛝',l:'Kids play'},{k:'lawn',e:'🧺',l:'Picnic'},
  {k:'nature',e:'🌿',l:'Nature'},{k:'sea',e:'🌊',l:'Sea breeze'},{k:'heritage',e:'🏛️',l:'History'}];
@@ -513,7 +543,7 @@ const NEAR = [
 
 // Sample events are clearly marked. Steps Festival dates confirmed by LYPM / Steps.
 const EVENTS = [
- {id:'e1',d:'2026-10-10',t:'7:00 am',title:'Sunset sketching for families',park:'hanging',kind:'kids',sample:true,blurb:'Bring a notebook and draw the animal hedges. All ages.'},
+ {id:'e1',d:'2026-10-10',t:'5:00 pm',title:'Sunset sketching for families',park:'hanging',kind:'kids',sample:true,blurb:'Bring a notebook and draw the animal hedges. All ages.'},
  {id:'e2',d:'2026-10-11',t:'7:30 am',title:'Seafront clean-up morning',park:'joggers',kind:'care',sample:true,blurb:'Gloves and bags provided. Finish with chai.'},
  {id:'e3',d:'2026-10-18',t:'8:00 am',title:'Heritage tree walk',park:'ranibaug',kind:'nature',sample:true,blurb:'Meet some of the city\'s oldest trees with a botanist.'},
  {id:'e4',d:'2026-10-25',t:'7:00 am',title:'Bird count for beginners',park:'sgnp',kind:'nature',sample:true,blurb:'Binoculars to share. Park entry ticket needed.'},
@@ -528,6 +558,14 @@ const GROUPS = [
  {id:'g5',n:'Mazgaon Heritage Strollers',park:'baptista',e:'🏛️',w:'Last Saturday, 5:00 pm',d:'Slow walks through Mazgaon\'s hills and history.'}
 ];
 const FACTS = [
+ {e:'🏰',t:'Bandra Fort, properly Castella de Aguada, was built by the Portuguese in 1640 as a watchtower. Its name means "fort of the waterpoint", after a freshwater spring nearby.'},
+ {e:'🏃',t:'Joggers Park in Bandra opened in 1990 on land that was once a dumping ground. It was one of Mumbai\'s first parks built for joggers.'},
+ {e:'🗺️',t:'LYPM and Bombay Greenway surveyed Bandra, Khar and Santacruz West and counted 41 parks and gardens, 9 public playgrounds and 4 promenades.'},
+ {e:'🌺',t:'The Gulmohar that turns Mumbai red every May is not Indian at all: it comes from Madagascar.'},
+ {e:'🏝️',t:'Mumbai was once seven separate islands. Land was filled in between them over about 150 years to make one city.'},
+ {e:'🌳',t:'A single banyan tree can grow so wide that it looks like a small forest, because its hanging roots turn into new trunks.'},
+ {e:'⛰️',t:'The Kanheri Caves inside Sanjay Gandhi National Park were carved by Buddhist monks starting about 2,000 years ago.'},
+ {e:'🦩',t:'Every winter, thousands of flamingos visit the mudflats along Mumbai\'s eastern creek, around Sewri and Thane.'},
  {e:'🌳',t:'Rani Baug is Mumbai\'s oldest public garden. Work on it began in 1861.'},
  {e:'💧',t:'The Hanging Gardens and Joseph Baptista Gardens were both built on top of water reservoirs in the 1880s.'},
  {e:'🏏',t:'Shivaji Park was created in 1925 and covers about 28 acres. More than half of it is used by clubs.'},
@@ -575,10 +613,37 @@ function eventCard(ev){
   <h3>${esc(ev.title)}${ev.sample?'<span class="sample">sample</span>':''}</h3>
   <p>${esc(ev.t)} · ${p?esc(p.name):esc(ev.venue)}</p><p>${esc(ev.blurb)}</p>
   <div class="act"><button class="btn ${on?'done':'gul'} grown" data-rsvp="${ev.id}">${on?'✓ Going':"I'm going"}</button>
+  ${on?`<button class="btn ghost grown" data-cal="${ev.id}">📅 Add to calendar</button>`:''}
   <span class="kidsonly about" style="align-self:center">Ask a grown-up to sign up</span>
   ${p?`<button class="btn ghost" data-park="${p.id}">See park</button>`:''}</div></div></article>`;}
 
 /* ---------- RENDER: HOME ---------- */
+/* calendar */
+function evTimes(ev){
+  const m=/^(\d{1,2}):(\d{2})\s*(am|pm)$/i.exec(ev.t.trim());
+  if(!m)return null;let h=+m[1]%12+(m[3].toLowerCase()==='pm'?12:0);
+  const [Y,M,D]=ev.d.split('-').map(Number);
+  const start=new Date(Date.UTC(Y,M-1,D,h,+m[2])-330*60000), end=new Date(start.getTime()+2*3600000);
+  return [start,end];
+}
+const z2=n=>String(n).padStart(2,'0');
+const utc=d=>d.getUTCFullYear()+z2(d.getUTCMonth()+1)+z2(d.getUTCDate())+'T'+z2(d.getUTCHours())+z2(d.getUTCMinutes())+'00Z';
+function evPlace(ev){const p=ev.park?pk(ev.park):null;return p?p.name+', '+p.area+', Mumbai':(ev.venue||'')+', Mumbai';}
+function gCal(ev){const t=evTimes(ev);const dates=t?utc(t[0])+'/'+utc(t[1]):ev.d.replace(/-/g,'')+'/'+ev.d.replace(/-/g,'');
+  let u='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(ev.title)+'&dates='+dates+'&location='+encodeURIComponent(evPlace(ev))+'&details='+encodeURIComponent(ev.blurb+' (via Love Your Parks Mumbai)');
+  if(!t&&ev.t==='Saturdays')u+='&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;COUNT=8');return u;}
+function icsEsc(x){return String(x).replace(/([,;])/g,'\\$1');}
+function icsFile(ev){const t=evTimes(ev);const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LYPM//Parks//EN','BEGIN:VEVENT','UID:'+ev.id+'@app.lypmumbai.com','DTSTAMP:'+utc(new Date())];
+  if(t){L.push('DTSTART:'+utc(t[0]),'DTEND:'+utc(t[1]));}else{const d=ev.d.replace(/-/g,'');L.push('DTSTART;VALUE=DATE:'+d);if(ev.t==='Saturdays')L.push('RRULE:FREQ=WEEKLY;COUNT=8');}
+  L.push('SUMMARY:'+icsEsc(ev.title),'LOCATION:'+icsEsc(evPlace(ev)),'DESCRIPTION:'+icsEsc(ev.blurb),'BEGIN:VALARM','TRIGGER:-PT2H','ACTION:DISPLAY','DESCRIPTION:Reminder','END:VALARM','END:VEVENT','END:VCALENDAR');
+  const blob=new Blob([L.join('\r\n')],{type:'text/calendar'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=ev.id+'-lypm.ics';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}
+function openCal(id){const ev=EVENTS.find(e=>e.id===id);if(!ev)return;
+  showSheet(`<div class="setpanel"><button class="iconbtn" id="closeSheet" aria-label="Back">←</button><h2 id="sheetTitle">Add to calendar</h2>
+  <p><b>${esc(ev.title)}</b><br>${esc(ev.t)} · ${esc(evPlace(ev))}</p>
+  <div class="cal"><a class="btn" href="${gCal(ev)}" target="_blank" rel="noopener" style="text-decoration:none">Google Calendar</a><button class="btn ghost" id="icsBtn">iPhone, Outlook &amp; others</button></div>
+  <p class="about">Your calendar will remind you before it starts. LYPM doesn't see your plans: they stay on your phone.</p></div>`);
+  $('#icsBtn').onclick=()=>{icsFile(ev);toast('Calendar file ready, open it to add the event');};}
+
 function renderHome(){
   const h=new Date().getHours();
   $('#greet').textContent=h<12?'Good morning!':h<17?'Good afternoon!':'Good evening!';
@@ -588,6 +653,8 @@ function renderHome(){
   else $('#moodResults').innerHTML='';
   const day=Math.floor(Date.now()/864e5);const HL=PARKS.filter(x=>!x.hw);const p=HL[day%HL.length];
   $('#potd').innerHTML=`<button class="card potd" data-park="${p.id}"><span class="blob" style="background:${COL[p.c]}">${p.e}</span><span><h3>${esc(p.name)}</h3><p>${esc(p.area)}</p><span class="tagrow">${p.tags.slice(0,3).map(t=>`<span class="tag">${TAGLABEL[t]}</span>`).join('')}</span></span></button>`;
+  $('#nearLabel').innerHTML=(S.here?'Near your current location':'Near '+esc(here().n))+' · <button class="link" data-open="settings" style="padding:0">change</button>';
+  $('#kidsQuick').classList.toggle('on',!!S.kids);$('#kidsQuick').setAttribute('aria-pressed',!!S.kids);$('#kidsQuick').textContent=S.kids?'🧒 Kids mode is on':'🧒 Kids mode';
   $('#nearList').innerHTML=[...PARKS].sort((a,b)=>km(here(),a)-km(here(),b)).slice(0,3).map(parkRow).join('');
   $('#homeEvents').innerHTML=EVENTS.slice(0,2).map(eventCard).join('');
   const f=FACTS[S.fact%FACTS.length];$('#fact').innerHTML=`<span class="e">${f.e}</span><p>${esc(f.t)}</p>`;
@@ -611,19 +678,75 @@ function renderMap(){
   g+=`<ellipse cx="${X(72.905)}" cy="${Y(19.127)}" rx="${4}" ry="${3}" fill="var(--water)"/>`;
   g+=LABELS.map(([n,a,b])=>`<text x="${X(b)}" y="${Y(a)}" font-size="${9.5*s}" fill="var(--muted)" font-family="Mukta" text-anchor="middle">${n}</text>`).join('');
   const h=here();g+=`<circle cx="${X(h.lng)}" cy="${Y(h.lat)}" r="${3.2*s}" fill="var(--sea)" stroke="#fff" stroke-width="${1*s}"/>`;
-  g+=list.map(p=>{const st=S.stamps[p.id];return `<g class="pin" data-park="${p.id}" role="button" tabindex="0" aria-label="${esc(p.name)}"><circle cx="${X(p.lng)}" cy="${Y(p.lat)}" r="${(9*s)}" fill="transparent"/><circle cx="${X(p.lng)}" cy="${Y(p.lat)}" r="${5.2*s}" fill="${st?'var(--gul)':'var(--leaf)'}" stroke="#fff" stroke-width="${1.2*s}"/></g>`;}).join('');
+  g+=list.map(p=>{const st=S.stamps[p.id];return `<g class="pin" data-park="${p.id}" role="button" tabindex="0" aria-label="${esc(p.name)}"><circle cx="${X(p.lng)}" cy="${Y(p.lat)}" r="${(7*s)}" fill="transparent"/><circle cx="${X(p.lng)}" cy="${Y(p.lat)}" r="${3.4*s}" fill="${st?'var(--gul)':'var(--leaf)'}" stroke="#fff" stroke-width="${1.2*s}"/></g>`;}).join('');
   const m=$('#map');m.setAttribute('viewBox',vb.join(' '));m.innerHTML=g;
 }
-function filteredParks(){return PARKS.filter(p=>!S.filter||p.tags.includes(S.filter));}
+let Q='';
+function filteredParks(){const q=Q.trim().toLowerCase();return PARKS.filter(p=>(!S.filter||p.tags.includes(S.filter))&&(!q||(p.name+' '+p.alt+' '+p.area).toLowerCase().includes(q)));}
 function renderExplore(){
-  $('#regions').innerHTML=REG.map(r=>`<button class="chip" data-region="${r.k}" aria-pressed="${S.region===r.k}">${r.n}</button>`).join('');
-  $('#nearSel').innerHTML=(S.here?'<option value="gps" selected>My location</option>':'')+NEAR.map(n=>`<option value="${n.k}" ${!S.here&&S.near===n.k?'selected':''}>${n.n}</option>`).join('');
   const tags=['walk','play','lawn','nature','sea','sport','heritage','view','shade'];
   $('#filters').innerHTML=`<button class="chip" data-filter="" aria-pressed="${!S.filter}">All</button>`+tags.map(t=>`<button class="chip" data-filter="${t}" aria-pressed="${S.filter===t}">${TAGLABEL[t]}</button>`).join('');
   const list=filteredParks().sort((a,b)=>km(here(),a)-km(here(),b));
-  $('#pcount').textContent=list.length+' parks';
+  $('#pcount').textContent=list.length+(list.length===1?' park':' parks');
+  $('#listTitle').textContent=Q.trim()?'Results':'Nearest first';
   $('#parkList').innerHTML=list.length?list.map(parkRow).join(''):'<div class="empty">No parks match that yet. Try another filter.</div>';
-  renderMap();
+  $('#mapwrap').classList.toggle('street',!streetBroken);
+  if(!streetBroken){ if($('#v-map').classList.contains('on'))renderStreet(); } else {S.region='hw';renderMap();}
+}
+
+/* ---------- STREET MAP (Leaflet + OpenStreetMap) ---------- */
+// Add a free CARTO key here to switch to CARTO's lighter "Voyager" style: carto.com/basemaps/apikey
+const CARTO_KEY='';
+const BASEMAP=CARTO_KEY?{url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key='+CARTO_KEY,sub:'abcd',att:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions">CARTO</a>'}
+ :{url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',sub:'',att:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · <a href="https://www.openstreetmap.org/fixthemap">Fix the map</a>'};
+let LM=null,LG=null,leafletP=null,tileErr=0,streetBroken=false,LMview=false;
+function pinR(){const z=LM?LM.getZoom():13;return z>=17?9:z>=16?8:z>=15?7:z>=14?6:z>=13?5:4;}
+function loadLeaflet(){
+  if(leafletP)return leafletP;
+  leafletP=new Promise((ok,bad)=>{
+    const css=document.createElement('link');css.rel='stylesheet';css.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+    css.onerror=()=>bad('css');document.head.appendChild(css);
+    const js=document.createElement('script');js.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+    js.onload=()=>ok();js.onerror=()=>bad('js');document.head.appendChild(js);
+    setTimeout(()=>bad('timeout'),12000);
+  });
+  return leafletP;
+}
+function streetFail(){
+  if(streetBroken)return;streetBroken=true;renderExplore();
+  toast('Showing the simple map: the street map needs internet');
+}
+function regionBounds(r){const [x,y,w,h]=r.vb;return [[19.30-(y+h)/1000,x/945+72.77],[19.30-y/1000,(x+w)/945+72.77]];}
+async function renderStreet(){
+  try{await loadLeaflet();}catch(e){streetFail();return;}
+  const el=document.getElementById('lmap');
+  if(!LM){
+    LM=L.map(el,{zoomControl:true,scrollWheelZoom:false,tap:true});
+    const t=L.tileLayer(BASEMAP.url,{maxZoom:19,subdomains:BASEMAP.sub||'abc',attribution:BASEMAP.att});
+    t.on('tileerror',()=>{if(++tileErr===4&&!LM._lypmOk)streetFail();});
+    t.on('tileload',()=>{LM._lypmOk=true;});
+    t.addTo(LM);
+    L.polygon(WARD,{color:getComputedStyle(document.documentElement).getPropertyValue('--lilac').trim()||'#8C7AEE',weight:2,dashArray:'6 5',fillOpacity:.06}).addTo(LM);
+    LG=L.layerGroup().addTo(LM);
+    LM.on('zoomend',()=>{const r=pinR();LG.eachLayer(l=>{if(l._lypmPin)l.setRadius(r);});});
+    const Loc=L.Control.extend({options:{position:'topright'},onAdd(){const d=L.DomUtil.create('div','leaflet-bar');d.innerHTML='<a href="#" class="locate" title="Show my location" aria-label="Show my location" role="button">📍</a>';
+      L.DomEvent.on(d,'click',ev=>{L.DomEvent.preventDefault(ev);L.DomEvent.stopPropagation(ev);locateMe(true);});return d;}});
+    new Loc().addTo(LM);
+  }
+  setTimeout(()=>LM.invalidateSize(),60);
+  LG.clearLayers();
+  const css=getComputedStyle(document.documentElement);
+  const leaf=css.getPropertyValue('--leaf').trim()||'#2FA866', gul=css.getPropertyValue('--gul').trim()||'#FF7A52', sea=css.getPropertyValue('--sea').trim()||'#2D9CC8';
+  filteredParks().forEach(p=>{
+    const m=L.circleMarker([p.lat,p.lng],{radius:pinR(),color:'#fff',weight:2,fillColor:S.stamps[p.id]?gul:leaf,fillOpacity:1});m._lypmPin=true;
+    m.bindTooltip(p.e+' '+p.name,{direction:'top',offset:[0,-6]});
+    m.on('click',()=>openPark(p.id));
+    m.addTo(LG);
+  });
+  const h=here();L.circleMarker([h.lat,h.lng],{radius:6,color:'#fff',weight:2,fillColor:sea,fillOpacity:1}).bindTooltip(S.here?'You are here':'Your area').addTo(LG);
+  const list=filteredParks();
+  if(Q.trim()&&list.length){LM.fitBounds(L.latLngBounds(list.map(p=>[p.lat,p.lng])),{padding:[30,30],maxZoom:16});}
+  else if(!LMview){LM.setView([h.lat,h.lng],14);LMview=true;}
 }
 
 /* ---------- HAPPENINGS ---------- */
@@ -652,7 +775,8 @@ function renderMe(){
   const sv=S.saved.map(pk).filter(Boolean);
   $('#savedList').innerHTML=sv.length?sv.map(parkRow).join(''):'<div class="empty">Tap ♥ on any park to keep it here.</div>';
   $('#notesList').innerHTML=S.notes.length?S.notes.slice().reverse().map(n=>`<div class="card"><b>${n.kind==='love'?'💚 Shout-out':n.kind==='idea'?'💡 Idea':'🔧 Needs care'}</b> · ${esc(pk(n.park).name)}<p style="margin:4px 0 0">${esc(n.text)}</p>${n.fix?`<p class="about" style="margin:4px 0 0">Suggested fix: ${esc(n.fix)}</p>`:''}<small class="about">Saved on this phone · ${new Date(n.at).toLocaleDateString()}</small></div>`).join(''):'<div class="empty">Notes you write about a park appear here.</div>';
-  $('#kidsSw').setAttribute('aria-checked',S.kids);$('#bigSw').setAttribute('aria-checked',S.big);
+  const plans=EVENTS.filter(e=>S.rsvp.includes(e.id));
+  $('#plansList').innerHTML=plans.length?plans.map(eventCard).join(''):'<div class="empty">Tap "I\'m going" on an event and it appears here, with a reminder you can add to your calendar.</div>';
 }
 
 /* ---------- PARK SHEET ---------- */
@@ -683,6 +807,7 @@ function openPark(id){
   </div>
   <div class="block">
     <h3>About</h3><p>${esc(p.about)}</p>
+    ${PARKFACT[p.id]?`<div class="fact" style="margin:10px 0"><span class="e">💡</span><p><b>Did you know?</b> ${esc(PARKFACT[p.id])}</p></div>`:''}
     <div class="spot" style="margin:2px 0 8px"><a class="sp" style="text-decoration:none;color:var(--ink);display:inline-flex;align-items:center" href="${gURL(p)}" target="_blank" rel="noopener">📍 Google Maps</a><a class="sp" style="text-decoration:none;color:var(--ink);display:inline-flex;align-items:center" href="${aURL(p)}" target="_blank" rel="noopener">🧭 Apple Maps</a></div>
     ${p.links?`<div class="spot" style="margin-top:4px">${p.links.map(([l,u])=>`<a class="sp" style="text-decoration:none;color:var(--ink);display:inline-flex;align-items:center" href="${u}" target="_blank" rel="noopener">🔗 ${esc(l)}</a>`).join('')}</div>`:''}
     <h3>Things to spot here</h3>
@@ -706,10 +831,17 @@ function openPark(id){
     </div>
   </div>`;
   helpKind='love';
-  $('#sheet').classList.add('on');$('#sheet').setAttribute('aria-hidden','false');
-  $('#panel').scrollTop=0;setTimeout(()=>$('#closeSheet').focus(),30);
-  $('#closeSheet').onclick=closeSheet;
-  $('#stampBtn').onclick=()=>{if(S.stamps[id])delete S.stamps[id];else{S.stamps[id]=Date.now();toast('Stamp collected! '+p.e);burst($('#stampBtn'));}save();const b=$('#stampBtn');openPark(id);refresh();};
+  const keep=sheetOpen&&lastPark===id?$('#panel').scrollTop:0;lastPark=id;
+  showSheet($('#panel').innerHTML);if(keep)$('#panel').scrollTop=keep;
+  $('#stampBtn').onclick=()=>{
+    if(S.stamps[id]){toast('Already stamped on '+new Date(S.stamps[id]).toLocaleDateString()+' '+p.e);return;}
+    const give=(how)=>{S.stamps[id]=Date.now();save();burst($('#stampBtn'));toast((how||'Stamp collected! ')+p.e);openPark(id);refresh();};
+    if(!navigator.geolocation){give();return;}
+    toast('Checking you\'re at the park…');
+    navigator.geolocation.getCurrentPosition(pos=>{const d=km({lat:pos.coords.latitude,lng:pos.coords.longitude},p);
+      if(d<=0.35)give('You\'re here! Stamp collected ');else toast('You seem to be '+(d<1?Math.round(d*1000)+' m':d.toFixed(1)+' km')+' away. Stamps are collected at the park 🙂');},
+      ()=>give('Stamp collected (location was off) '),{timeout:10000,maximumAge:30000});
+  };
   $('#saveBtn').onclick=()=>{S.saved=saved?S.saved.filter(x=>x!==id):[...S.saved,id];save();openPark(id);refresh();};
   $('#shareBtn').onclick=async()=>{const txt=p.name+', '+p.area+' — found on Love Your Parks Mumbai. Directions: '+dirURL(p);
     try{if(navigator.share){await navigator.share({title:p.name,text:txt});}else{await navigator.clipboard.writeText(txt);toast('Copied, ready to paste');}}catch(e){}};
@@ -724,45 +856,113 @@ function openPark(id){
     $('#helpText').value='';if($('#fixText'))$('#fixText').value='';
     toast('Thank you! Saved on this phone for now.');refresh();};
 }
-function closeSheet(){$('#sheet').classList.remove('on');$('#sheet').setAttribute('aria-hidden','true');}
+let sheetOpen=false,lastPark=null;
+function showSheet(html){
+  $('#panel').innerHTML=html;
+  if(!sheetOpen){sheetOpen=true;try{history.pushState({v:curView,sheet:1},'');}catch(e){}}
+  $('#sheet').classList.add('on');$('#sheet').setAttribute('aria-hidden','false');
+  $('#panel').scrollTop=0;const c=$('#closeSheet');if(c){c.onclick=()=>closeSheet();setTimeout(()=>c.focus(),30);}
+}
+function closeSheet(fromPop){
+  if(!sheetOpen)return;sheetOpen=false;lastPark=null;
+  $('#sheet').classList.remove('on');$('#sheet').setAttribute('aria-hidden','true');
+  if(!fromPop&&history.state&&history.state.sheet){try{history.back();}catch(e){}}
+}
+function openSettings(){
+  showSheet(`<div class="setpanel"><button class="iconbtn" id="closeSheet" aria-label="Back">←</button>
+  <h2 id="sheetTitle">Settings</h2>
+  <div class="card">
+   <div class="set"><div><b>🧒 Kids mode</b><small>Bigger and simpler. Hides groups and park reports.</small></div><button class="sw" role="switch" id="kidsSw" aria-checked="${!!S.kids}" aria-label="Kids mode"></button></div>
+   <div class="set"><div><b>🔠 Bigger text</b><small>Easier reading for everyone.</small></div><button class="sw" role="switch" id="bigSw" aria-checked="${!!S.big}" aria-label="Bigger text"></button></div>
+   <div class="set"><div><b>🗣️ Language</b><small>हिंदी and मराठी are coming soon.</small></div><span class="tag">English</span></div>
+  </div>
+  <h3>📍 My area</h3>
+  <p class="about" style="margin:0 0 8px">Used to show the nearest parks. Your location is never sent anywhere.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><select id="nearSel" aria-label="Choose your area">${(S.here?'<option value="gps" selected>My current location</option>':'')+NEAR.map(n=>`<option value="${n.k}" ${!S.here&&S.near===n.k?'selected':''}>${n.n}</option>`).join('')}</select><button class="btn ghost" id="locBtn">Use my location</button></div>
+  <h3>🔒 Your privacy</h3>
+  <div class="privacy">
+   <p><b>No sign-up, no account, no ads.</b></p>
+   <p>Your stamps, saved parks, plans and notes are stored only on this phone. LYPM can't see them, and the app has no tracking or analytics.</p>
+   <p class="about">Maps and fonts load from OpenStreetMap and Google Fonts, as on any website. In this test version, notes to LYPM also stay on your phone.</p>
+   <button class="btn ghost" id="resetBtn" style="margin-top:10px">Erase my data from this phone</button>
+  </div>
+  <h3>ℹ️ About</h3>
+  <div class="card about">
+   <p style="margin-top:0">Love Your Parks Mumbai, test version. Park details were checked against public and BMC sources in October 2026, and the Bandra–Khar–Santacruz parks come from the LYPM survey of January 2026. Timings can change, so parks marked "check before you go" still need confirming.</p>
+   <p>Events and groups marked "sample" are examples only. The Steps Festival dates are real.</p>
+   <p>Official BMC links: <a href="https://mcgm.maps.arcgis.com/apps/webappviewer/index.html?id=e2da11c7f81a47d39326b23212eba490" target="_blank" rel="noopener">BMC map of gardens</a> · <a href="https://marg.mcgm.gov.in/MARG/welcomePage.html" target="_blank" rel="noopener">MyBMC MARG complaints</a> · <a href="https://portal.mcgm.gov.in/irj/portal/anonymous/qlgardenauth" target="_blank" rel="noopener">Garden &amp; Tree Authority</a></p>
+   <p>Something urgent or unsafe in a park? Call the BMC helpline on <b>1916</b>.</p>
+   <button class="btn ghost" id="tourBtn">Show the welcome tour again</button>
+  </div></div>`);
+  $('#kidsSw').onclick=()=>{S.kids=!S.kids;save();refresh();$('#kidsSw').setAttribute('aria-checked',S.kids);toast(S.kids?'Kids mode on 🧒':'Kids mode off');};
+  $('#bigSw').onclick=()=>{S.big=!S.big;save();refresh();$('#bigSw').setAttribute('aria-checked',S.big);};
+  $('#nearSel').onchange=e=>{if(e.target.value!=='gps'){S.near=e.target.value;S.here=null;LMview=false;}save();refresh();toast('Showing parks near '+here().n);};
+  $('#locBtn').onclick=()=>locateMe(false);
+  $('#resetBtn').onclick=()=>{if(confirm('Erase your stamps, saved parks, plans and notes from this phone?')){try{localStorage.removeItem(KEY);}catch(e){}location.reload();}};
+  $('#tourBtn').onclick=()=>{closeSheet();setTimeout(openWelcome,350);};
+}
+function locateMe(fromMap){
+  if(!navigator.geolocation){toast('Location isn\'t available here. Choose your area in Settings.');return;}
+  navigator.geolocation.getCurrentPosition(pos=>{S.here={lat:pos.coords.latitude,lng:pos.coords.longitude,n:'your location'};save();LMview=false;refresh();
+    if(LM&&fromMap)LM.setView([S.here.lat,S.here.lng],15);toast('Showing parks near you');},
+  ()=>toast('Location is off. You can choose your area in Settings.'),{timeout:10000,maximumAge:60000});
+}
+function openWelcome(){
+  showSheet(`<div class="setpanel welcome"><h2 id="sheetTitle" style="margin-top:6px">Welcome to Love Your Parks 🌳</h2>
+  <p>Mumbai's parks, walks and nature, in your pocket. Here's how it works:</p>
+  <div class="step"><span class="e">🗺️</span><div><b>Explore</b><br><span class="about">Find parks near you on the map and see what each one has.</span></div></div>
+  <div class="step"><span class="e">🎫</span><div><b>Collect stamps</b><br><span class="about">At a park, tap "Collect stamp" to fill your Park Passport and earn badges.</span></div></div>
+  <div class="step"><span class="e">🎪</span><div><b>Join in</b><br><span class="about">Walks, clean-ups and workshops. Tap "I'm going" and add them to your calendar.</span></div></div>
+  <div class="step"><span class="e">🔍</span><div><b>Learn</b><br><span class="about">Spot trees, birds and butterflies, and discover the stories behind each park.</span></div></div>
+  <div class="privacy" style="margin:6px 0 14px"><b>🔒 Private by design.</b> No sign-up. Everything you do stays on this phone.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="goBtn" style="flex:1">Let's go!</button><button class="btn ghost" id="goKids" style="flex:1">🧒 Start in kids mode</button></div></div>`);
+  $('#goBtn').onclick=()=>{S.seenIntro=true;save();closeSheet();};
+  $('#goKids').onclick=()=>{S.seenIntro=true;S.kids=true;save();refresh();closeSheet();toast('Kids mode on 🧒');};
+}
+
 
 /* ---------- NAV & EVENTS ---------- */
-function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+let curView='home';
+function go(v,push){if(push!==false&&v!==curView){try{history.pushState({v},'');}catch(e){}}curView=v;
+  if(v==='map'&&!streetBroken)setTimeout(renderStreet,30);document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   document.querySelectorAll('.nav button').forEach(b=>{if(b.dataset.go===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   window.scrollTo(0,0);}
 function applyMode(){document.body.classList.toggle('kids',S.kids);document.body.classList.toggle('big',S.big);
   if(S.kids){const g=document.querySelector('[data-seg="events"]');if(g)g.click();}}
 function refresh(){renderHome();renderExplore();renderHappen();renderLearn();renderMe();applyMode();}
 
+window.addEventListener('popstate',e=>{
+  if(sheetOpen){closeSheet(true);return;}
+  const v=(e.state&&e.state.v)||'home';go(v,false);
+});
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-park],[data-go],[data-mood],[data-region],[data-filter],[data-evf],[data-rsvp],[data-join],[data-spot],[data-seg]');
+  const o=e.target.closest('[data-open],[data-cal]');
+  if(o){if(o.dataset.open==='settings')openSettings();else if(o.dataset.cal)openCal(o.dataset.cal);return;}
+  const t=e.target.closest('[data-mapmode],[data-park],[data-go],[data-mood],[data-region],[data-filter],[data-evf],[data-rsvp],[data-join],[data-spot],[data-seg]');
   if(!t)return;const d=t.dataset;
-  if(d.go){go(d.go);return;}
-  if(d.rsvp){S.rsvp=S.rsvp.includes(d.rsvp)?S.rsvp.filter(x=>x!==d.rsvp):[...S.rsvp,d.rsvp];save();if(S.rsvp.includes(d.rsvp))burst(t);toast(S.rsvp.includes(d.rsvp)?"You're going! 🎉":'Removed');refresh();if($('#sheet').classList.contains('on')){const id=$('#sheetTitle')&&PARKS.find(p=>p.name===$('#sheetTitle').textContent);if(id)openPark(id.id);}return;}
+  if(d.go){const was=sheetOpen;if(was)closeSheet();setTimeout(()=>go(d.go),was?80:0);return;}
+  if(d.mapmode){S.mapMode=d.mapmode;save();renderExplore();if(d.mapmode==='street')renderStreet();return;}
+  if(d.rsvp){S.rsvp=S.rsvp.includes(d.rsvp)?S.rsvp.filter(x=>x!==d.rsvp):[...S.rsvp,d.rsvp];save();if(S.rsvp.includes(d.rsvp))burst(t);const going=S.rsvp.includes(d.rsvp);toast(going?"You're going! 🎉 Saved in My parks":'Removed from your plans');refresh();if(sheetOpen&&lastPark&&$('#sheetTitle')&&$('#sheetTitle').textContent===pk(lastPark).name)openPark(lastPark);if(going)setTimeout(()=>openCal(d.rsvp),700);return;}
   if(d.join){S.joined=S.joined.includes(d.join)?S.joined.filter(x=>x!==d.join):[...S.joined,d.join];save();refresh();return;}
   if(d.spot){if(S.spotted[d.spot])delete S.spotted[d.spot];else{S.spotted[d.spot]=Date.now();toast(SPECIES[d.spot].e+' Nice spotting!');burst(t);}save();refresh();
     if($('#sheet').classList.contains('on'))t.setAttribute('aria-pressed',!!S.spotted[d.spot]);return;}
   if(d.mood!==undefined){S.mood=S.mood===d.mood?null:d.mood;save();renderHome();return;}
-  if(d.region!==undefined){S.region=d.region;save();renderExplore();return;}
+  if(d.region!==undefined){S.region=d.region;save();if(LM)LM._lypmRegion=null;renderExplore();return;}
   if(d.filter!==undefined){S.filter=d.filter||null;save();renderExplore();return;}
   if(d.evf){S.evf=d.evf;save();renderHappen();return;}
   if(d.seg){document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-selected',b===t));$('#segEvents').hidden=d.seg!=='events';$('#segGroups').hidden=d.seg!=='groups';return;}
   if(d.park){openPark(d.park);}
 });
 $('#map').addEventListener('keydown',e=>{const g=e.target.closest('[data-park]');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openPark(g.dataset.park);}});
-$('#scrim').onclick=closeSheet;
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').classList.contains('on'))closeSheet();});
+$('#scrim').onclick=()=>closeSheet();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen)closeSheet();});
+$('#q').addEventListener('input',e=>{Q=e.target.value;renderExplore();});
+$('#kidsQuick').onclick=()=>{S.kids=!S.kids;save();refresh();toast(S.kids?'Kids mode on 🧒':'Kids mode off');};
 $('#nextFact').onclick=()=>{S.fact++;save();renderHome();};
-$('#nearSel').onchange=e=>{if(e.target.value!=='gps'){S.near=e.target.value;S.here=null;}save();refresh();};
-$('#locBtn').onclick=()=>{if(!navigator.geolocation){toast('Location is not available here. Pick your area instead.');return;}
-  navigator.geolocation.getCurrentPosition(pos=>{S.here={lat:pos.coords.latitude,lng:pos.coords.longitude};save();refresh();toast('Sorted by distance from you');},
-  ()=>toast('Location is off. Pick your area from the list.'),{timeout:8000});};
-$('#kidsSw').onclick=()=>{S.kids=!S.kids;save();refresh();toast(S.kids?'Kids mode on 🧒':'Kids mode off');};
-$('#bigSw').onclick=()=>{S.big=!S.big;save();refresh();};
-$('#textBtn').onclick=()=>{S.big=!S.big;save();refresh();toast(S.big?'Bigger text on':'Normal text');};
-
+try{history.replaceState({v:'home'},'');}catch(e){}
 refresh();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+if(!S.seenIntro)setTimeout(openWelcome,500);
 </script>
 </body>
 </html>
